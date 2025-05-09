@@ -6,4 +6,5 @@ class AppRoutes {
   static const String homeTodo = '/home/todo';
   static const String homeFeed = '/home/feed';
   static const String homeTools = '/home/tools';
+  static const String widgetShowcase = '/widget-showcase';
 }

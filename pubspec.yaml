@@ -12,14 +12,15 @@ dependencies:
   cupertino_icons: ^1.0.6
 
   # 状态管理
-  flutter_riverpod: ^2.3.6
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
 
   # 路由管理
   go_router: ^15.1.2
 
   # 数据序列化
   freezed_annotation: ^2.2.0
-  json_annotation: ^4.8.1
+  json_annotation: ^4.9.0
 
   # 工具
   uuid: ^4.0.0
@@ -34,7 +35,10 @@ dependencies:
 
   # 网络
   dio: ^5.3.2
-
+  # 电池信息
+  battery_plus: ^6.2.1
+  # 日历工具
+  lunar: ^1.7.5
   # 国际化
   flutter_localizations:
     sdk: flutter
@@ -48,9 +52,16 @@ dev_dependencies:
 
   # 代码生成
   build_runner: ^2.4.6
-
+  riverpod_generator: ^2.4.0
   freezed: ^2.4.1
   json_serializable: ^6.7.1
+  # 图标生成
+  flutter_launcher_icons: "^0.14.3"
+
+flutter_icons:
+  image_path: "assets/images/icon.png"
+  android: true
+  ios: true
 
 flutter:
   uses-material-design: true

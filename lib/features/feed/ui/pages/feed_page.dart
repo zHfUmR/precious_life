@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../providers/feed_provider.dart';
 import '../../../../data/models/article.dart';
 import '../../../../data/repositories/feed_repository.dart';
 
@@ -11,52 +10,14 @@ class FeedPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final articlesState = ref.watch(articlesProvider);
-    
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('信息流'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {
-              // 展示搜索界面
-              showSearch(
-                context: context,
-                delegate: ArticleSearchDelegate(ref),
-              );
-            },
-          ),
-        ],
+      body: Container(
+        color: Colors.blue,
       ),
-      body: articlesState.when(
-        data: (articles) {
-          if (articles.isEmpty) {
-            return const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.article_outlined, size: 80, color: Colors.grey),
-                  SizedBox(height: 16),
-                  Text('暂无信息', style: TextStyle(fontSize: 18, color: Colors.grey)),
-                ],
-              ),
-            );
-          }
-          
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: articles.length,
-            itemBuilder: (context, index) {
-              final article = articles[index];
-              return ArticleCard(article: article);
-            },
-          );
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(
-          child: Text('加载失败: $error', style: const TextStyle(color: Colors.red)),
-        ),
+        child: const Icon(Icons.add),
       ),
     );
   }

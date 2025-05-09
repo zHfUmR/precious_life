@@ -8,33 +8,13 @@ class ToolsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('实用工具'),
+      body: Container(
+        color: Colors.green,
       ),
-      body: GridView.builder(
-        padding: const EdgeInsets.all(16),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          childAspectRatio: 1.2,
-        ),
-        itemCount: _tools.length,
-        itemBuilder: (context, index) {
-          final tool = _tools[index];
-          return ToolCard(
-            icon: tool.icon,
-            title: tool.title,
-            description: tool.description,
-            color: tool.color,
-            onTap: () {
-              // 点击工具卡片时，导航到对应的工具页面
-              if (tool.route != null) {
-                Navigator.of(context).pushNamed(tool.route!);
-              }
-            },
-          );
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
         },
+        child: const Icon(Icons.add),
       ),
     );
   }

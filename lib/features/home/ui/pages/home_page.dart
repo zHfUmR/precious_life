@@ -14,37 +14,40 @@ class HomePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final pageController = PageController(initialPage: 0);
     return SafeArea(
-        child: Stack(children: [
-      // 背景图
-      Positioned.fill(
-        child: Image.asset('assets/images/bg.png', fit: BoxFit.cover),
-      ),
-      // 毛玻璃效果
-      BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-        child: ClipRect(
-          child: Container(
-            color: Colors.white.withOpacity(0.2),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-              child: Container(color: Colors.transparent),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // 背景图
+            Positioned.fill(
+              child: Image.asset('assets/images/bg.png', fit: BoxFit.cover),
             ),
-          ),
-        ),
-      ),
-      // 页面内容
-      Container(
-        margin: const EdgeInsets.all(16),
-        child: PageView(
-          controller: pageController,
-          onPageChanged: (index) {},
-          children: const [
-            TodoPage(),
-            FeedPage(),
-            ToolsPage(),
+            // 毛玻璃效果
+            BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+              child: ClipRect(
+                child: Container(
+                  color: Colors.white.withOpacity(0.2),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                    child: Container(color: Colors.transparent),
+                  ),
+                ),
+              ),
+            ),
+            // 页面内容
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: PageView(
+                controller: pageController,
+                onPageChanged: (index) {},
+                children: const [
+                  TodoPage(),
+                  FeedPage(),
+                  ToolsPage(),
+                ],
+              ),
+            ),
           ],
-        ),
-      ),
-    ]));
+        ));
   }
 }

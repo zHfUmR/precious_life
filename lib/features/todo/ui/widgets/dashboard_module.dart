@@ -4,7 +4,9 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:precious_life/config/color_style.dart';
 import 'package:precious_life/config/text_style.dart';
+import 'package:precious_life/core/utils/screen_utils.dart';
 import 'package:precious_life/features/todo/ui/providers/home_time_vm.dart';
+import 'package:precious_life/features/todo/ui/widgets/countdown_module.dart';
 
 class DashboardModule extends ConsumerStatefulWidget {
   const DashboardModule({super.key});
@@ -38,59 +40,67 @@ class _DashboardModuleState extends ConsumerState<DashboardModule> with SingleTi
   @override
   Widget build(BuildContext context) {
     _timeModuleVm = ref.read(homeTimeVmProvider.notifier);
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return SizedBox(
-            height: 200,
-            width: constraints.maxWidth,
-            child: Container(
-                margin: const EdgeInsets.all(16.0),
+    return SizedBox(
+        height: ScreenUtils.smallWidghtWidth,
+        width: ScreenUtils.largeWidghtWidth,
+        child: Container(
+            padding: const EdgeInsets.all(5.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15.0),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      // 电量、农历、月份、周几
+                      buildBatteryWidget(),
+                      Text(ref.watch(homeTimeVmProvider.select((value) => value.lunarText)),
+                          style: CPTextStyles.s8.bold.c(CPColors.black)),
+                      Text(ref.watch(homeTimeVmProvider.select((value) => value.dateText)),
+                          style: CPTextStyles.s8.bold.c(CPColors.black)),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(ref.watch(homeTimeVmProvider.select((value) => value.timeText)),
+                      style: CPTextStyles.s29.bold.italic.c(CPColors.black)),
+                  const SizedBox(height: 2),
+                  Text(
+                    ref.watch(homeTimeVmProvider.select((value) => value.festivalList)).asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final value = entry.value;
+                      // 每2个添加换行符
+                      final needLineBreak = index > 0 && index % 2 == 0;
+                      final separator = index == ref.watch(homeTimeVmProvider.select((value) => value.festivalList)).length - 1 ? '' : '、';
+                      return '${needLineBreak ? '\n' : ''}$value$separator';
+                    }).join(''),
+                    style: CPTextStyles.s8.bold.c(CPColors.black),
+                    textAlign: TextAlign.center,
+                  ),
+                  const Expanded(child: CountdownModule()),
+                ]),
+              ),
+              Expanded(
                 child: Container(
-                    padding: const EdgeInsets.all(5.0),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16.0),
+                  decoration: BoxDecoration(
+                    color: Colors.green[100],
+                    borderRadius: const BorderRadius.only(
+                      topRight: Radius.circular(16.0),
+                      bottomRight: Radius.circular(16.0),
                     ),
-                    child: Row(children: [
-                      Expanded(
-                        child: Column(children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              // 电量、农历、月份、周几
-                              buildBatteryWidget(),
-                              Text(ref.watch(homeTimeVmProvider.select((value) => value.lunarText)),
-                                  style: CPTextStyles.s8.bold.c(CPColors.black)),
-                              Text(ref.watch(homeTimeVmProvider.select((value) => value.dateText)),
-                                  style: CPTextStyles.s8.bold.c(CPColors.black)),
-                            ],
-                          ),
-                          Text(ref.watch(homeTimeVmProvider.select((value) => value.timeText)),
-                              style: CPTextStyles.s36.bold.italic.c(CPColors.black)),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: ref.watch(homeTimeVmProvider.select((value) => value.festivalList)).map((e) {
-                              return Text(e, style: CPTextStyles.s8.bold.c(CPColors.black));
-                            }).toList(),
-                          ),
-                        ]),
-                      ),
-                      Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.green[100],
-                            borderRadius: const BorderRadius.only(
-                              topRight: Radius.circular(16.0),
-                              bottomRight: Radius.circular(16.0),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ]))));
-      },
-    );
+                  ),
+                ),
+              ),
+            ])));
   }
-    // 每次帧刷新回调
+
+  // 每次帧刷新回调
   void _tick() {
     // 每隔1s才刷新一次时间，减少不必要的重绘
     if (DateTime.now().millisecondsSinceEpoch - _datetime.millisecondsSinceEpoch > 1000) {

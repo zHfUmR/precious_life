@@ -8,10 +8,9 @@ class TodoPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return LayoutBuilder(builder: (context, constraints) {
-      return const Column(children: [
+    return const Column(children: [
         DashboardModule(),
-      ]);
-    });
+      ],
+    );
   }
 } 

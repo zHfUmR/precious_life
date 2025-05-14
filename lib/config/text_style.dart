@@ -103,10 +103,18 @@ class CPTextStyles {
   static final TextStyleBuilder s30 =
       TextStyleBuilder(fontSize: 30, color: CPColors.black, fontWeight: FontWeight.normal);
   
+  /// 字体大小32，默认黑色，普通粗细
+  static final TextStyleBuilder s32 =
+      TextStyleBuilder(fontSize: 32, color: CPColors.black, fontWeight: FontWeight.normal);
+
   /// 字体大小36，默认黑色，普通粗细
   static final TextStyleBuilder s36 =
       TextStyleBuilder(fontSize: 36, color: CPColors.black, fontWeight: FontWeight.normal);
   
+  /// 字体大小48，默认黑色，普通粗细
+  static final TextStyleBuilder s48 =
+      TextStyleBuilder(fontSize: 48, color: CPColors.black, fontWeight: FontWeight.normal);
+
   /// 创建自定义文本样式
   static build({double? fontSize, Color? color, FontWeight? fontWeight, FontStyle? fontStyle}) =>
       TextStyleBuilder(fontSize: fontSize, color: color, fontWeight: fontWeight, fontStyle: fontStyle);

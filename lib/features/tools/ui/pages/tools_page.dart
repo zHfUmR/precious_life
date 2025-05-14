@@ -4,11 +4,21 @@ import 'package:go_router/go_router.dart';
 import 'package:precious_life/app/routes/route_constants.dart';
 
 /// 工具页面
-class ToolsPage extends ConsumerWidget {
+class ToolsPage extends ConsumerStatefulWidget {
   const ToolsPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ToolsPage> createState() => _ToolsPageState();
+}
+
+/// ToolsPage的状态类，混入AutomaticKeepAliveClientMixin以保持页面状态
+class _ToolsPageState extends ConsumerState<ToolsPage> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true; // 告诉Flutter我们希望保持这个页面的状态
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context); // 必须调用super.build
     return Scaffold(
       body: GridView.builder(
         padding: const EdgeInsets.all(16),

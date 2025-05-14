@@ -7,6 +7,7 @@ import 'package:precious_life/config/text_style.dart';
 import 'package:precious_life/core/utils/screen_utils.dart';
 import 'package:precious_life/features/todo/ui/providers/home_time_vm.dart';
 import 'package:precious_life/features/todo/ui/widgets/countdown_module.dart';
+import 'package:precious_life/features/todo/ui/widgets/weather_module.dart';
 
 class DashboardModule extends ConsumerStatefulWidget {
   const DashboardModule({super.key});
@@ -49,13 +50,9 @@ class _DashboardModuleState extends ConsumerState<DashboardModule> with SingleTi
               color: Colors.white,
               borderRadius: BorderRadius.circular(15.0),
             ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
+            child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
               Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
+                child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -68,16 +65,26 @@ class _DashboardModuleState extends ConsumerState<DashboardModule> with SingleTi
                     ],
                   ),
                   const SizedBox(height: 2),
-                  Text(ref.watch(homeTimeVmProvider.select((value) => value.timeText)),
-                      style: CPTextStyles.s29.bold.italic.c(CPColors.black)),
-                  const SizedBox(height: 2),
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: CPColors.black, width: 1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 5),
+                    child: Text(ref.watch(homeTimeVmProvider.select((value) => value.timeText)),
+                        style: CPTextStyles.s32.bold.c(CPColors.black).copyWith(letterSpacing: -2)),
+                  ),
+                  const SizedBox(height: 5),
                   Text(
                     ref.watch(homeTimeVmProvider.select((value) => value.festivalList)).asMap().entries.map((entry) {
                       final index = entry.key;
                       final value = entry.value;
                       // 每2个添加换行符
                       final needLineBreak = index > 0 && index % 2 == 0;
-                      final separator = index == ref.watch(homeTimeVmProvider.select((value) => value.festivalList)).length - 1 ? '' : '、';
+                      final separator =
+                          index == ref.watch(homeTimeVmProvider.select((value) => value.festivalList)).length - 1
+                              ? ''
+                              : '、';
                       return '${needLineBreak ? '\n' : ''}$value$separator';
                     }).join(''),
                     style: CPTextStyles.s8.bold.c(CPColors.black),
@@ -86,17 +93,7 @@ class _DashboardModuleState extends ConsumerState<DashboardModule> with SingleTi
                   const Expanded(child: CountdownModule()),
                 ]),
               ),
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.green[100],
-                    borderRadius: const BorderRadius.only(
-                      topRight: Radius.circular(16.0),
-                      bottomRight: Radius.circular(16.0),
-                    ),
-                  ),
-                ),
-              ),
+              const Expanded(child: WeatherModule()),
             ])));
   }
 

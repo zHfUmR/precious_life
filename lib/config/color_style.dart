@@ -12,6 +12,9 @@ class CPColors {
   /// 深灰色
   static const Color darkGrey = Color(0xFF363636);
 
+  /// 浅灰色
+  static const Color lightGrey = Color(0xFF999999);
+
   /// 浅黑色
   static const Color lightBlack = Color(0xFF28282A);
 

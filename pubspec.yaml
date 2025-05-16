@@ -42,6 +42,8 @@ dependencies:
   # 国际化
   flutter_localizations:
     sdk: flutter
+  # 定位
+  geolocator: ^13.0.0
 
 dev_dependencies:
   flutter_test:

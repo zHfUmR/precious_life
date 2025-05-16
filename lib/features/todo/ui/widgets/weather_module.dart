@@ -47,41 +47,61 @@ class _WeatherModuleState extends ConsumerState<WeatherModule> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
+              SizedBox(width: 10),
               Text('深圳市-龙岗区', style: CPTextStyles.s12.bold.c(CPColors.lightGrey)),
               Icon(Icons.wb_sunny, size: 20, color: CPColors.lightGrey),
               Text('29°C', style: CPTextStyles.s12.bold.c(CPColors.lightGrey)),
+              SizedBox(width: 10),
             ],
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
+              SizedBox(width: 10),
               Text('深圳市-龙岗区', style: CPTextStyles.s12.bold.c(CPColors.lightGrey)),
               Icon(Icons.wb_sunny, size: 20, color: CPColors.lightGrey),
               Text('29°C', style: CPTextStyles.s12.bold.c(CPColors.lightGrey)),
+              SizedBox(width: 10),
             ],
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
+              SizedBox(width: 10),
               Text('深圳市-龙岗区', style: CPTextStyles.s12.bold.c(CPColors.lightGrey)),
               Icon(Icons.wb_sunny, size: 20, color: CPColors.lightGrey),
               Text('29°C', style: CPTextStyles.s12.bold.c(CPColors.lightGrey)),
+              SizedBox(width: 10),
             ],
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
+              SizedBox(width: 10),
               Text('深圳市-龙岗区', style: CPTextStyles.s12.bold.c(CPColors.lightGrey)),
               Icon(Icons.wb_sunny, size: 20, color: CPColors.lightGrey),
               Text('29°C', style: CPTextStyles.s12.bold.c(CPColors.lightGrey)),
+              SizedBox(width: 10),
             ],
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
+              SizedBox(width: 10),
               Text('深圳市-龙岗区', style: CPTextStyles.s12.bold.c(CPColors.lightGrey)),
               Icon(Icons.wb_sunny, size: 20, color: CPColors.lightGrey),
               Text('29°C', style: CPTextStyles.s12.bold.c(CPColors.lightGrey)),
+              SizedBox(width: 10),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              SizedBox(width: 5),
+              Text('深圳市-龙岗区', style: CPTextStyles.s12.bold.c(CPColors.lightGrey)),
+              Icon(Icons.wb_sunny, size: 20, color: CPColors.lightGrey),
+              Text('29°C', style: CPTextStyles.s12.bold.c(CPColors.lightGrey)),
+              SizedBox(width: 5),
             ],
           ),
         ]),

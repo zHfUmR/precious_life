@@ -1,0 +1,3 @@
+@echo off
+echo 正在启动位置服务测试应用...
+flutter run -t lib/features/location/location_test_app.dart 

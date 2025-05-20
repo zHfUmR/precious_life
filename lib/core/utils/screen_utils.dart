@@ -20,13 +20,15 @@ class ScreenUtils {
   // 是否已初始化
   static bool _initialized = false;
   // 小组件宽度约占屏幕宽度的40%
-  static double _smallWidghtWidthRatio = 0.4;
+  static const double _smallWidghtWidthRatio = 0.4;
   // 大组件宽度约占屏幕宽度的85%
-  static double _largeWidghtWidthRatio = 0.85;
+  static const double _largeWidghtWidthRatio = 0.85;
   // 小组件宽度
   static double _smallWidghtWidth = 0;
   // 大组件宽度
   static double _largeWidghtWidth = 0;
+  // 组件离屏幕边缘的距离
+  static double get widgetEdgeDistance => (_screenWidth - _largeWidghtWidth) / 2;
 
   /// 初始化屏幕工具类
   /// 在应用启动时调用，通常在首个界面的build方法中

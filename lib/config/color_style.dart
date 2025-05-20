@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 /// 应用自定义颜色集合
 /// 包含应用中使用的各种颜色常量
 class CPColors {
+  /// 透明
+  static const Color transparent = Color(0x00000000);
+  
   /// 黑色
   static const Color black = Color(0xFF333333);
 

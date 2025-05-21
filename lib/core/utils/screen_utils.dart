@@ -84,10 +84,8 @@ final screenUtilsProvider = Provider<ScreenUtilsNotifier>((ref) {
 
 /// 屏幕尺寸信息的Notifier类
 class ScreenUtilsNotifier {
-  BuildContext? _context;
 
   void initialize(BuildContext context) {
-    _context = context;
     ScreenUtils.initialize(context);
   }
 

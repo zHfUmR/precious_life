@@ -18,11 +18,16 @@ class AppConfig {
   static bool enableAnalytics = !kDebugMode;
   
   /// 初始化应用配置
-  /// 在应用启动时调用
+  /// 在应用启动时调用F
   static Future<void> initialize() async {
     // 在这里可以进行一些异步的初始化操作
     // 例如：读取本地存储的配置、初始化第三方服务等
     
     debugPrint('AppConfig initialized');
   }
+
+  // 和风天气【https://dev.qweather.com/docs/】
+  static String qweatherBaseUrl = "https://m4359dtk6r.re.qweatherapi.com";
+  static String qweatherApiKey = "";
+
 } 

@@ -111,6 +111,11 @@ class CPTextStyles {
   static final TextStyleBuilder s36 =
       TextStyleBuilder(fontSize: 36, color: CPColors.black, fontWeight: FontWeight.normal);
   
+  /// 字体大小40，默认黑色，普通粗细
+  static final TextStyleBuilder s40 =
+      TextStyleBuilder(fontSize: 40, color: CPColors.black, fontWeight: FontWeight.normal);
+
+
   /// 字体大小48，默认黑色，普通粗细
   static final TextStyleBuilder s48 =
       TextStyleBuilder(fontSize: 48, color: CPColors.black, fontWeight: FontWeight.normal);

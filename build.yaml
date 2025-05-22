@@ -5,8 +5,6 @@ targets:
         options:
           # 使用显式命名，避免字段重命名问题
           explicit_to_json: true
-          # 使用字段重命名，支持下划线转小驼峰
-          field_rename: snake
           # 创建工厂构造函数
           create_factory: true
           # 包含空值
@@ -16,4 +14,4 @@ targets:
           # 生成toString方法
           to_string: true
           # 生成不可变副本方法
-          copy_with: true 
+          copy_with: true

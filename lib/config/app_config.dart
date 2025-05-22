@@ -26,8 +26,12 @@ class AppConfig {
     debugPrint('AppConfig initialized');
   }
 
+  // 当前经纬度
+  static double currentLatitude = 0;
+  static double currentLongitude = 0;
+
   // 和风天气【https://dev.qweather.com/docs/】
   static String qweatherBaseUrl = "https://m4359dtk6r.re.qweatherapi.com";
-  static String qweatherApiKey = "";
+  static String qweatherApiKey = "f3c49f72623d4f8f95c7379a2922be62";
 
 } 

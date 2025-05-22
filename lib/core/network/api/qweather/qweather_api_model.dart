@@ -115,7 +115,7 @@ class QweatherNow with _$QweatherNow {
     String? temp,
 
     /// 体感温度，默认单位：摄氏度
-    int? feelsLike,
+    String? feelsLike,
 
     /// 天气状况的图标代码
     String? icon,

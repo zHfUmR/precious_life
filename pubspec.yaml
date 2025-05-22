@@ -69,6 +69,7 @@ flutter:
   uses-material-design: true
   assets:
   - assets/images/
+  - assets/data/
   # 字体配置（可根据需要添加）
   # fonts:
   #   - family: CustomFont

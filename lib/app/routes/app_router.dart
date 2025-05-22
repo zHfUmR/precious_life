@@ -2,6 +2,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:precious_life/app/routes/route_constants.dart';
 import 'package:precious_life/features/home/ui/pages/home_page.dart';
+import 'package:precious_life/features/todo/ui/pages/sub/weather_city_settings_page.dart';
 
 
 /// 路由配置提供者
@@ -15,6 +16,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/',
         builder: (context, state) => const HomePage(),
+      ),
+      GoRoute(
+        path: AppRoutes.weatherCitySettings,
+        builder: (context, state) => const WeatherCitySettingsPage(),
       ),
     ],
   );

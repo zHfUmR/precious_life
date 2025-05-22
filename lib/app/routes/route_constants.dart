@@ -7,4 +7,5 @@ class AppRoutes {
   static const String homeFeed = '/home/feed';
   static const String homeTools = '/home/tools';
   static const String widgetShowcase = '/widget-showcase';
+  static const String weatherCitySettings = '/weather/city-settings';
 }

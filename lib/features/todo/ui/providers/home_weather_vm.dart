@@ -13,11 +13,12 @@ part 'home_weather_vm.g.dart';
 class HomeWeatherVm extends _$HomeWeatherVm {
   /// 构建初始状态
   @override
-  HomeWeatherState build() => const HomeWeatherState(loadingStatus: LoadingStatus.initial);
+  HomeWeatherState build() =>
+      const HomeWeatherState(currentLoadingStatus: LoadingStatus.initial, cityLoadingStatus: LoadingStatus.initial);
 
   // 获取当前位置的经纬度
-  Future<void> refreshWeather() async {
-    state = state.copyWith(loadingStatus: LoadingStatus.loading);
+  Future<void> refreshCurrentWeather() async {
+    state = state.copyWith(currentLoadingStatus: LoadingStatus.loading);
     if (AppConfig.currentLatitude == 0 && AppConfig.currentLongitude == 0) {
       Position location;
       try {
@@ -26,7 +27,7 @@ class HomeWeatherVm extends _$HomeWeatherVm {
         AppConfig.currentLatitude = location.latitude;
         AppConfig.currentLongitude = location.longitude;
       } catch (e) {
-        state = state.copyWith(loadingStatus: LoadingStatus.failure, errorMessage: e.toString());
+        state = state.copyWith(currentLoadingStatus: LoadingStatus.failure, currentErrorMessage: e.toString());
         return;
       }
     }
@@ -41,12 +42,17 @@ class HomeWeatherVm extends _$HomeWeatherVm {
     final weatherData = futures[1] as dynamic;
     final rainData = futures[2] as dynamic;
     state = state.copyWith(
-      loadingStatus: LoadingStatus.success,
+      currentLoadingStatus: LoadingStatus.success,
       currentLatitude: AppConfig.currentLatitude,
       currentLongitude: AppConfig.currentLongitude,
       currentCity: "${locationData.location![0].adm2}-${locationData.location![0].name}",
       currentWeather: weatherData.now,
       currentMinutelyRain: rainData,
     );
+  }
+
+  /// 刷新城市列表天气
+  Future<void> refreshCityWeather() async {
+    state = state.copyWith(cityLoadingStatus: LoadingStatus.success);
   }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:precious_life/app/routes/route_constants.dart';
 import 'package:precious_life/config/color_style.dart';
 import 'package:precious_life/config/text_style.dart';
 import 'package:precious_life/features/todo/data/models/home_weather_state.dart';
@@ -23,7 +25,7 @@ class _WeatherModuleState extends ConsumerState<WeatherModule> {
     super.initState();
     _homeWeatherVm = ref.read(homeWeatherVmProvider.notifier);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      _homeWeatherVm.refreshWeather();
+      _homeWeatherVm.refreshCurrentWeather();
     });
   }
 
@@ -33,11 +35,11 @@ class _WeatherModuleState extends ConsumerState<WeatherModule> {
     return Column(
       children: [
         LoadingStatusWidget(
-          status: homeWeatherState.loadingStatus,
-          onRetry: () => _homeWeatherVm.refreshWeather(),
-          errorMessage: homeWeatherState.errorMessage,
+          status: homeWeatherState.currentLoadingStatus,
+          onRetry: () => _homeWeatherVm.refreshCurrentWeather(),
+          errorMessage: homeWeatherState.currentErrorMessage,
           child: GestureDetector(
-            onTap: () => _homeWeatherVm.refreshWeather(),
+            onTap: () => _homeWeatherVm.refreshCurrentWeather(),
             child: Row(
               children: [
                 Expanded(
@@ -65,7 +67,7 @@ class _WeatherModuleState extends ConsumerState<WeatherModule> {
                       ),
                       const SizedBox(height: 5),
                       Text(homeWeatherState.currentMinutelyRain?.summary ?? '--',
-                          style: CPTextStyles.s8.c(CPColors.black), textAlign: TextAlign.center),
+                          style: CPTextStyles.s8.c(CPColors.laMuPink), textAlign: TextAlign.center),
                     ],
                   ),
                 ),
@@ -73,7 +75,7 @@ class _WeatherModuleState extends ConsumerState<WeatherModule> {
                 Column(
                   children: [
                     Text('°C', style: CPTextStyles.s16.c(CPColors.black)),
-                    const Icon(Icons.wb_sunny, size: 20, color: CPColors.black),
+                    Icon(homeWeatherState.weatherIcon, size: 20, color: CPColors.black),
                   ],
                 ),
               ],
@@ -81,73 +83,80 @@ class _WeatherModuleState extends ConsumerState<WeatherModule> {
           ),
         ),
         Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+          child: LoadingStatusWidget(
+            status: homeWeatherState.cityLoadingStatus, // 默认显示成功状态
+            child: GestureDetector(
+              onTap: () => _homeWeatherVm.refreshCityWeather(),
+              onLongPress: () => GoRouter.of(context).push(AppRoutes.weatherCitySettings),
+              child: SingleChildScrollView(
+                child: Column(
                   children: [
-                    const SizedBox(width: 10),
-                    Text('深圳市-龙岗区', style: CPTextStyles.s12.bold.c(CPColors.lightGrey)),
-                    const Icon(Icons.wb_sunny, size: 20, color: CPColors.lightGrey),
-                    Text('29°C', style: CPTextStyles.s12.bold.c(CPColors.lightGrey)),
-                    const SizedBox(width: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        const SizedBox(width: 10),
+                        Text('深圳市-龙岗区', style: CPTextStyles.s12.bold.c(CPColors.lightGrey)),
+                        const Icon(Icons.wb_sunny, size: 20, color: CPColors.lightGrey),
+                        Text('29°C', style: CPTextStyles.s12.bold.c(CPColors.lightGrey)),
+                        const SizedBox(width: 10),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        const SizedBox(width: 10),
+                        Text('深圳市-龙岗区', style: CPTextStyles.s12.bold.c(CPColors.lightGrey)),
+                        const Icon(Icons.wb_sunny, size: 20, color: CPColors.lightGrey),
+                        Text('29°C', style: CPTextStyles.s12.bold.c(CPColors.lightGrey)),
+                        const SizedBox(width: 10),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        const SizedBox(width: 10),
+                        Text('深圳市-龙岗区', style: CPTextStyles.s12.bold.c(CPColors.lightGrey)),
+                        const Icon(Icons.wb_sunny, size: 20, color: CPColors.lightGrey),
+                        Text('29°C', style: CPTextStyles.s12.bold.c(CPColors.lightGrey)),
+                        const SizedBox(width: 10),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        const SizedBox(width: 10),
+                        Text('深圳市-龙岗区', style: CPTextStyles.s12.bold.c(CPColors.lightGrey)),
+                        const Icon(Icons.wb_sunny, size: 20, color: CPColors.lightGrey),
+                        Text('29°C', style: CPTextStyles.s12.bold.c(CPColors.lightGrey)),
+                        const SizedBox(width: 10),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        const SizedBox(width: 10),
+                        Text('深圳市-龙岗区', style: CPTextStyles.s12.bold.c(CPColors.lightGrey)),
+                        const Icon(Icons.wb_sunny, size: 20, color: CPColors.lightGrey),
+                        Text('29°C', style: CPTextStyles.s12.bold.c(CPColors.lightGrey)),
+                        const SizedBox(width: 10),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        const SizedBox(width: 5),
+                        Text('深圳市-龙岗区', style: CPTextStyles.s12.bold.c(CPColors.lightGrey)),
+                        const Icon(Icons.wb_sunny, size: 20, color: CPColors.lightGrey),
+                        Text('29°C', style: CPTextStyles.s12.bold.c(CPColors.lightGrey)),
+                        const SizedBox(width: 5),
+                      ],
+                    ),
                   ],
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    const SizedBox(width: 10),
-                    Text('深圳市-龙岗区', style: CPTextStyles.s12.bold.c(CPColors.lightGrey)),
-                    const Icon(Icons.wb_sunny, size: 20, color: CPColors.lightGrey),
-                    Text('29°C', style: CPTextStyles.s12.bold.c(CPColors.lightGrey)),
-                    const SizedBox(width: 10),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    const SizedBox(width: 10),
-                    Text('深圳市-龙岗区', style: CPTextStyles.s12.bold.c(CPColors.lightGrey)),
-                    const Icon(Icons.wb_sunny, size: 20, color: CPColors.lightGrey),
-                    Text('29°C', style: CPTextStyles.s12.bold.c(CPColors.lightGrey)),
-                    const SizedBox(width: 10),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    const SizedBox(width: 10),
-                    Text('深圳市-龙岗区', style: CPTextStyles.s12.bold.c(CPColors.lightGrey)),
-                    const Icon(Icons.wb_sunny, size: 20, color: CPColors.lightGrey),
-                    Text('29°C', style: CPTextStyles.s12.bold.c(CPColors.lightGrey)),
-                    const SizedBox(width: 10),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    const SizedBox(width: 10),
-                    Text('深圳市-龙岗区', style: CPTextStyles.s12.bold.c(CPColors.lightGrey)),
-                    const Icon(Icons.wb_sunny, size: 20, color: CPColors.lightGrey),
-                    Text('29°C', style: CPTextStyles.s12.bold.c(CPColors.lightGrey)),
-                    const SizedBox(width: 10),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    const SizedBox(width: 5),
-                    Text('深圳市-龙岗区', style: CPTextStyles.s12.bold.c(CPColors.lightGrey)),
-                    const Icon(Icons.wb_sunny, size: 20, color: CPColors.lightGrey),
-                    Text('29°C', style: CPTextStyles.s12.bold.c(CPColors.lightGrey)),
-                    const SizedBox(width: 5),
-                  ],
-                ),
-              ],
+              ),
             ),
           ),
-        ),
+        )
       ],
     );
   }

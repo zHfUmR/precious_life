@@ -8,6 +8,7 @@ enum LoadingStatus {
   loading, // 加载中
   failure, // 加载失败
   success, // 加载完成
+  noData,  // 无数据
 }
 
 /// 根据不同加载状态显示对应视图的组件
@@ -63,6 +64,24 @@ class LoadingStatusWidget extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+        );
+      case LoadingStatus.noData:
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.inbox_outlined,
+                color: CPColors.lightGrey,
+                size: 20,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                '暂无数据',
+                style: CPTextStyles.s12.c(CPColors.lightGrey),
+              ),
+            ],
           ),
         );
       case LoadingStatus.success:

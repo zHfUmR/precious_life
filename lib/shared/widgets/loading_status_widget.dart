@@ -41,8 +41,12 @@ class LoadingStatusWidget extends StatelessWidget {
         return const SizedBox.shrink();
       case LoadingStatus.loading:
         return const Center(
-          child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(CPColors.leiMuBlue),
+          child: SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(CPColors.leiMuBlue),
+            ),
           ),
         );
       case LoadingStatus.failure:

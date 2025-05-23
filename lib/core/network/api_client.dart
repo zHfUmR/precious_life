@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:dio/io.dart';
 import 'package:flutter/foundation.dart';
 
 /// API客户端封装了API服务的所有配置
@@ -45,7 +44,7 @@ class ApiClient {
           print('🌐 HTTP: $log');
         },
       ));
-      dio.httpClientAdapter = IOHttpClientAdapter(createHttpClient: () => localProxyHttpClient());
+      // dio.httpClientAdapter = IOHttpClientAdapter(createHttpClient: () => localProxyHttpClient());
     }
     return dio;
   }

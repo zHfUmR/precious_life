@@ -26,6 +26,7 @@ class _WeatherModuleState extends ConsumerState<WeatherModule> {
     _homeWeatherVm = ref.read(homeWeatherVmProvider.notifier);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       _homeWeatherVm.refreshCurrentWeather();
+      _homeWeatherVm.refreshCityWeather();
     });
   }
 
@@ -66,8 +67,11 @@ class _WeatherModuleState extends ConsumerState<WeatherModule> {
                         ],
                       ),
                       const SizedBox(height: 5),
-                      Text(homeWeatherState.currentMinutelyRain?.summary ?? '--',
-                          style: CPTextStyles.s8.c(CPColors.laMuPink), textAlign: TextAlign.center),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 5),
+                        child: Text(homeWeatherState.currentMinutelyRain?.summary ?? '--',
+                            style: CPTextStyles.s8.c(CPColors.laMuPink), textAlign: TextAlign.center),
+                      ),
                     ],
                   ),
                 ),
@@ -75,7 +79,7 @@ class _WeatherModuleState extends ConsumerState<WeatherModule> {
                 Column(
                   children: [
                     Text('°C', style: CPTextStyles.s16.c(CPColors.black)),
-                    Icon(homeWeatherState.weatherIcon, size: 20, color: CPColors.black),
+                    homeWeatherState.weatherText,
                   ],
                 ),
               ],
@@ -83,11 +87,15 @@ class _WeatherModuleState extends ConsumerState<WeatherModule> {
           ),
         ),
         Expanded(
-          child: LoadingStatusWidget(
-            status: homeWeatherState.cityLoadingStatus, // 默认显示成功状态
-            child: GestureDetector(
-              onTap: () => _homeWeatherVm.refreshCityWeather(),
-              onLongPress: () => GoRouter.of(context).push(AppRoutes.weatherCitySettings),
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              print("点击了");
+              _homeWeatherVm.refreshCityWeather();
+            },
+            onLongPress: () => GoRouter.of(context).push(AppRoutes.weatherCitySettings),
+            child: LoadingStatusWidget(
+              status: homeWeatherState.cityLoadingStatus, // 默认显示成功状态
               child: SingleChildScrollView(
                 child: Column(
                   children: [

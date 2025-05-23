@@ -1,4 +1,5 @@
 import 'package:geolocator/geolocator.dart';
+import 'dart:io';
 
 /// 位置工具类
 /// 提供获取设备当前位置的功能
@@ -8,10 +9,13 @@ class LocationUtils {
   /// 返回包含经纬度的Position对象
   /// 如果用户拒绝位置权限或位置服务关闭，将抛出异常
   static Future<Position> getCurrentPosition() async {
-    // 检查位置服务是否开启
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      throw '位置服务未开启';
+    // 在Android平台检查位置服务是否开启
+    // iOS平台在权限请求时会自动检查位置服务状态
+    if (Platform.isAndroid) {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        throw '位置服务未开启';
+      }
     }
 
     // 检查应用权限

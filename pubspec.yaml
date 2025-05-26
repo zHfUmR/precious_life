@@ -43,7 +43,8 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   # 定位
-  geolocator: ^13.0.0
+  geolocator: ^13.0.2
+  geolocator_apple: ^2.3.9 # iOS/macOS 平台特定实现
 
 dev_dependencies:
   flutter_test:

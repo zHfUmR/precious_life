@@ -3,8 +3,19 @@ import 'package:precious_life/core/network/api/qweather/qweather_api_model.dart'
 import 'package:precious_life/shared/widgets/loading_status_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:precious_life/config/text_style.dart';
+import 'package:precious_life/features/todo/ui/models/followed_city.dart';
 
 part 'home_weather_state.freezed.dart';
+
+/// 关注城市天气数据模型
+@freezed
+class FollowedCityWeather with _$FollowedCityWeather {
+  const factory FollowedCityWeather({
+    required FollowedCity city,
+    QweatherNow? weather,
+    String? errorMessage,
+  }) = _FollowedCityWeather;
+}
 
 @freezed
 class HomeWeatherState with _$HomeWeatherState {
@@ -20,6 +31,7 @@ class HomeWeatherState with _$HomeWeatherState {
     required LoadingStatus cityLoadingStatus, // 城市列表加载状态
     String? cityErrorMessage, // 城市列表错误信息
     List<QweatherNow>? cityWeatherList, // 城市列表天气
+    List<FollowedCityWeather>? followedCitiesWeather, // 关注城市天气列表
   }) = _HomeWeatherState;
 }
 

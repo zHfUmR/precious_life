@@ -40,8 +40,8 @@ class LoadingStatusWidget extends StatelessWidget {
       case LoadingStatus.initial:
         return const SizedBox.shrink();
       case LoadingStatus.loading:
-        return const Center(
-          child: SizedBox(
+        return _buildScrollableCenter(
+          child: const SizedBox(
             width: 20,
             height: 20,
             child: CircularProgressIndicator(
@@ -50,11 +50,11 @@ class LoadingStatusWidget extends StatelessWidget {
           ),
         );
       case LoadingStatus.failure:
-        return GestureDetector(
-          onTap: onRetry,
-          child: Center(
+        return _buildScrollableCenter(
+          child: GestureDetector(
+            onTap: onRetry,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 const Icon(
                   Icons.error_outline,
@@ -65,15 +65,16 @@ class LoadingStatusWidget extends StatelessWidget {
                 Text(
                   errorMessage ?? '加载失败',
                   style: CPTextStyles.s12.c(CPColors.lightGrey),
+                  textAlign: TextAlign.center,
                 ),
               ],
             ),
           ),
         );
       case LoadingStatus.noData:
-        return Center(
+        return _buildScrollableCenter(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
               const Icon(
                 Icons.inbox_outlined,
@@ -84,6 +85,7 @@ class LoadingStatusWidget extends StatelessWidget {
               Text(
                 '暂无数据',
                 style: CPTextStyles.s12.c(CPColors.lightGrey),
+                textAlign: TextAlign.center,
               ),
             ],
           ),
@@ -92,4 +94,18 @@ class LoadingStatusWidget extends StatelessWidget {
         return child;
     }
   }
+
+  /// 构建可滚动的居中容器
+  Widget _buildScrollableCenter({required Widget child}) => 
+    LayoutBuilder(
+      builder: (context, constraints) => SingleChildScrollView(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minHeight: constraints.maxHeight,
+            minWidth: constraints.maxWidth,
+          ),
+          child: Center(child: child),
+        ),
+      ),
+    );
 }

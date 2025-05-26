@@ -8,4 +8,5 @@ class AppRoutes {
   static const String homeTools = '/home/tools';
   static const String widgetShowcase = '/widget-showcase';
   static const String weatherCitySettings = '/weather/city-settings';
+  static const String citySearch = '/weather/city-search';
 }

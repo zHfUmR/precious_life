@@ -148,14 +148,18 @@ class TextStyleBuilder {
       TextStyleBuilder(fontSize: fontSize, color: color, fontWeight: fontWeight, fontStyle: fontStyle).build();
 
   /// 返回粗体样式的构建器
-  TextStyleBuilder get bold => TextStyleBuilder(fontSize: fontSize, color: color, fontWeight: FontWeight.bold);
+  TextStyleBuilder get bold => TextStyleBuilder(fontSize: fontSize, color: color, fontWeight: FontWeight.bold, fontStyle: fontStyle);
 
   /// 返回普通粗细样式的构建器
-  TextStyleBuilder get normal => TextStyleBuilder(fontSize: fontSize, color: color, fontWeight: FontWeight.normal);
+  TextStyleBuilder get normal => TextStyleBuilder(fontSize: fontSize, color: color, fontWeight: FontWeight.normal, fontStyle: fontStyle);
 
   /// 返回斜体样式的构建器
   TextStyleBuilder get italic =>
       TextStyleBuilder(fontSize: fontSize, color: color, fontWeight: fontWeight, fontStyle: FontStyle.italic);
+
+  /// 设置颜色并返回新的构建器
+  TextStyleBuilder withColor(Color newColor) =>
+      TextStyleBuilder(fontSize: fontSize, color: newColor, fontWeight: fontWeight, fontStyle: fontStyle);
 
   /// 构建最终的TextStyle
   /// 不传参返回默认样式

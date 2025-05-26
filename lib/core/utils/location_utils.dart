@@ -100,28 +100,16 @@ class LocationUtils {
     } on TimeoutException {
       // 处理超时异常，尝试获取最后已知位置
       print("获取当前位置超时，尝试获取最后已知位置");
-      final lastPosition = await getLastKnownPosition();
-      if (lastPosition != null) {
-        print("使用最后已知位置: ${lastPosition.latitude}, ${lastPosition.longitude}");
-        return lastPosition;
-      }
-      throw TimeoutException('获取位置信息超时，且无可用的历史位置数据', const Duration(seconds: 20));
+      return await _tryGetLastKnownPositionOrThrow(
+        '获取位置信息超时，且无可用的历史位置数据',
+        () => TimeoutException('获取位置信息超时，且无可用的历史位置数据', const Duration(seconds: 20))
+      );
     } catch (e) {
       print("获取当前位置失败: ${e.toString()}");
-      
-      // 尝试获取最后已知位置作为备选方案
-      try {
-        final lastPosition = await getLastKnownPosition();
-        if (lastPosition != null) {
-          print("使用最后已知位置作为备选: ${lastPosition.latitude}, ${lastPosition.longitude}");
-          return lastPosition;
-        }
-      } catch (lastPositionError) {
-        print("获取最后已知位置也失败: ${lastPositionError.toString()}");
-      }
-      
-      // 如果所有方法都失败，抛出详细的错误信息
-      throw PositionUpdateException('无法获取位置信息: ${e.toString()}');
+      return await _tryGetLastKnownPositionOrThrow(
+        '无法获取位置信息: ${e.toString()}',
+        () => PositionUpdateException('无法获取位置信息: ${e.toString()}')
+      );
     }
   }
   
@@ -188,4 +176,26 @@ class LocationUtils {
   /// 
   /// 返回位置服务是否在设备上启用
   static Future<bool> isLocationServiceEnabled() => Geolocator.isLocationServiceEnabled();
+  
+  /// 尝试获取最后已知位置，如果失败则抛出指定异常
+  /// 
+  /// [errorMessage] 错误消息
+  /// [exceptionFactory] 异常工厂函数
+  static Future<Position> _tryGetLastKnownPositionOrThrow(
+    String errorMessage,
+    Exception Function() exceptionFactory,
+  ) async {
+    try {
+      final lastPosition = await getLastKnownPosition();
+      if (lastPosition != null) {
+        print("使用最后已知位置作为备选: ${lastPosition.latitude}, ${lastPosition.longitude}");
+        return lastPosition;
+      }
+    } catch (lastPositionError) {
+      print("获取最后已知位置也失败: ${lastPositionError.toString()}");
+    }
+    
+    // 如果所有方法都失败，抛出指定的异常
+    throw exceptionFactory();
+  }
 }

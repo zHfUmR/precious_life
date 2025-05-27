@@ -10,4 +10,5 @@ class AppRoutes {
   static const String weatherCitySettings = '/weather/city-settings';  // 天气-城市设置
   static const String citySearch = '/weather/city-search';  // 天气-城市搜索
   static const String weatherDetail = '/weather/detail';  // 天气-详情
+  static const String weatherConfig = '/weather/config';  // 天气-配置设置
 }

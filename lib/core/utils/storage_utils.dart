@@ -160,4 +160,7 @@ class StorageKeys {
   
   /// 主题模式
   static const String themeMode = 'theme_mode';
+  
+  /// 天气API Key
+  static const String weatherApiKey = 'weather_api_key';
 } 

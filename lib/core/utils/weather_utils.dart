@@ -1,11 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:precious_life/config/color_style.dart';
 import 'package:precious_life/config/text_style.dart';
+import 'package:precious_life/core/utils/storage_utils.dart';
+import 'package:precious_life/config/app_config.dart';
 
 /// 天气工具类
 /// 统一处理天气相关的图标、颜色、文本等逻辑
 class WeatherUtils {
   WeatherUtils._();
+
+  /// 检查天气API Key是否已配置
+  /// 
+  /// 返回true表示已配置有效的API Key，false表示未配置或使用默认值
+  static Future<bool> isWeatherApiKeyConfigured() async {
+    try {
+      debugPrint('WeatherUtils: 开始检查API Key配置...');
+      
+      // 从存储中获取保存的API Key
+      final savedApiKey = await StorageUtils.instance.getString(StorageKeys.weatherApiKey);
+      
+      debugPrint('WeatherUtils: 检查API Key配置 - savedApiKey: ${savedApiKey?.isNotEmpty == true ? '已配置(${savedApiKey!.substring(0, 8)}...)' : '未配置'}');
+      debugPrint('WeatherUtils: 当前AppConfig.qweatherApiKey: ${AppConfig.qweatherApiKey.isNotEmpty ? '已设置(${AppConfig.qweatherApiKey.substring(0, 8)}...)' : '未设置'}');
+      
+      // 优先使用存储中的API Key
+      if (savedApiKey != null && savedApiKey.isNotEmpty) {
+        // 如果存储中有API Key，确保AppConfig同步
+        if (AppConfig.qweatherApiKey != savedApiKey) {
+          debugPrint('WeatherUtils: 同步存储中的API Key到AppConfig');
+          AppConfig.qweatherApiKey = savedApiKey;
+        }
+        debugPrint('WeatherUtils: API Key已配置并同步');
+        return true;
+      }
+      
+      // 如果存储中没有，但AppConfig中有（可能是初始化时设置的默认值）
+      if (AppConfig.qweatherApiKey.isNotEmpty) {
+        debugPrint('WeatherUtils: AppConfig中有API Key，保存到存储中');
+        await StorageUtils.instance.setString(StorageKeys.weatherApiKey, AppConfig.qweatherApiKey);
+        return true;
+      }
+      
+      // 都没有配置
+      debugPrint('WeatherUtils: API Key未配置');
+      return false;
+    } catch (e) {
+      debugPrint('WeatherUtils: 检查天气API Key配置失败: $e');
+      return false;
+    }
+  }
 
   /// 根据天气代码获取对应的图标数据
   /// 

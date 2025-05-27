@@ -38,7 +38,24 @@ class LoadingStatusWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     switch (status) {
       case LoadingStatus.initial:
-        return const SizedBox.shrink();
+        return _buildScrollableCenter(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.cloud_outlined,
+                color: CPColors.lightGrey,
+                size: 20,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '准备加载...',
+                style: CPTextStyles.s12.c(CPColors.lightGrey),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        );
       case LoadingStatus.loading:
         return _buildScrollableCenter(
           child: const SizedBox(

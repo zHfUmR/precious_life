@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:precious_life/config/app_config.dart';
 import 'package:precious_life/core/network/api_client.dart';
 import 'package:precious_life/core/network/api_exception.dart';
+import 'package:flutter/foundation.dart';
 
 /// 和风天气API客户端
 /// 负责和风天气API的请求处理，使用单例模式
@@ -28,16 +29,47 @@ class QweatherApiClient {
   /// 返回处理后的对象
   Future<T> handleResponse<T>(Response response, T Function(Map<String, dynamic> json) fromJson) async {
     final respJson = response.data;
+    debugPrint('QweatherApiClient: 处理响应 - code: ${respJson['code']}, message: ${respJson['message'] ?? '无'}');
+    
     if (respJson['error'] != null) {
+      debugPrint('QweatherApiClient: API返回错误 - ${respJson['error']}');
       throw ApiException(respJson['error']['status'], respJson['error']['detail']);
     }
+    
     if (respJson['code'] != '200') {
-      throw ApiException(respJson['code'], respJson['message']);
+      final errorCode = respJson['code'];
+      final errorMessage = respJson['message'] ?? '未知错误';
+      debugPrint('QweatherApiClient: API状态码错误 - code: $errorCode, message: $errorMessage');
+      
+      // 根据和风天气的错误码提供更友好的错误信息
+      String friendlyMessage = errorMessage;
+      switch (errorCode) {
+        case '401':
+          friendlyMessage = 'API Key无效或已过期';
+          break;
+        case '402':
+          friendlyMessage = 'API Key超过调用次数限制';
+          break;
+        case '403':
+          friendlyMessage = 'API Key没有权限访问该接口';
+          break;
+        case '404':
+          friendlyMessage = '请求的资源不存在';
+          break;
+        case '429':
+          friendlyMessage = '请求过于频繁，请稍后再试';
+          break;
+        case '500':
+          friendlyMessage = '和风天气服务器内部错误';
+          break;
+      }
+      
+      throw ApiException(errorCode, friendlyMessage);
     }
+    
+    debugPrint('QweatherApiClient: 响应处理成功，开始解析数据');
     return fromJson(respJson);
   }
-
-
 
   /// 执行API请求并处理响应
   /// 
@@ -51,17 +83,24 @@ class QweatherApiClient {
     required T Function(Map<String, dynamic> json) fromJson,
   }) async {
     try {
+      debugPrint('QweatherApiClient: 发起请求 - path: $path, params: $queryParameters');
+      debugPrint('QweatherApiClient: API Key: ${AppConfig.qweatherApiKey.isNotEmpty ? AppConfig.qweatherApiKey.substring(0, 8) + '...' : '空'}');
+      
       final response = await dio.get(
         path,
         queryParameters: queryParameters,
       );
+      
+      debugPrint('QweatherApiClient: 请求成功 - statusCode: ${response.statusCode}');
+      debugPrint('QweatherApiClient: 响应数据: ${response.data}');
+      
       return handleResponse(response, fromJson);
     } catch (e) {
+      debugPrint('QweatherApiClient: 请求失败 - $e');
+      debugPrint('QweatherApiClient: 错误类型 - ${e.runtimeType}');
       throw ApiException.from(e);
     }
   }
-
-
 }
 
 /// 和风天气API拦截器

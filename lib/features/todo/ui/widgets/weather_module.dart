@@ -20,6 +20,7 @@ class WeatherModule extends ConsumerStatefulWidget {
 
 /// 天气模块状态类
 class _WeatherModuleState extends ConsumerState<WeatherModule> {
+  late HomeWeatherVm _homeWeatherVm;
   bool _isApiKeyConfigured = false;
   bool _isCheckingApiKey = true;
   bool _hasInitialized = false; // 添加初始化标记
@@ -27,11 +28,10 @@ class _WeatherModuleState extends ConsumerState<WeatherModule> {
   @override
   void initState() {
     super.initState();
-    debugPrint('WeatherModule: initState() 开始初始化');
+    _homeWeatherVm = ref.read(homeWeatherVmProvider.notifier);
     
     // 使用addPostFrameCallback确保在widget构建完成后再进行检查
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      debugPrint('WeatherModule: PostFrameCallback 触发，开始检查API Key');
       _checkApiKeyAndInitialize();
     });
   }
@@ -43,12 +43,8 @@ class _WeatherModuleState extends ConsumerState<WeatherModule> {
         _isCheckingApiKey = true;
       });
       
-      debugPrint('WeatherModule: 开始检查API Key配置...');
-      
       // 检查API Key配置状态
       final isConfigured = await WeatherUtils.isWeatherApiKeyConfigured();
-      
-      debugPrint('WeatherModule: API Key配置检查结果: $isConfigured');
       
       if (mounted) {
         setState(() {
@@ -59,19 +55,14 @@ class _WeatherModuleState extends ConsumerState<WeatherModule> {
         
         // 如果API Key已配置，则加载天气数据
         if (isConfigured) {
-          debugPrint('WeatherModule: API Key已配置，开始加载天气数据');
-          
           // 先强制初始化Provider状态
           final currentState = ref.read(homeWeatherVmProvider);
-          debugPrint('WeatherModule: 当前Provider状态 - ${currentState.currentLoadingStatus}');
           
           // 确保在下一帧执行，避免状态更新冲突
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) {
-              debugPrint('WeatherModule: PostFrameCallback - 开始刷新天气数据');
               // 直接使用ref.read获取最新的notifier实例
               final notifier = ref.read(homeWeatherVmProvider.notifier);
-              debugPrint('WeatherModule: 获取到notifier实例');
               
               notifier.refreshCurrentWeather();
               notifier.refreshCityWeather();
@@ -79,18 +70,14 @@ class _WeatherModuleState extends ConsumerState<WeatherModule> {
               // 强制触发一次UI更新
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (mounted) {
-                  debugPrint('WeatherModule: 强制触发UI更新');
                   _forceRefresh();
                 }
               });
             }
           });
-        } else {
-          debugPrint('WeatherModule: API Key未配置，显示配置提示');
         }
       }
     } catch (e) {
-      debugPrint('WeatherModule: 检查API Key配置失败: $e');
       if (mounted) {
         setState(() {
           _isApiKeyConfigured = false;
@@ -103,8 +90,6 @@ class _WeatherModuleState extends ConsumerState<WeatherModule> {
 
   /// 重置状态并重新检查（用于配置完成后的刷新）
   Future<void> _resetAndRecheck() async {
-    debugPrint('WeatherModule: 重置状态并重新检查API Key');
-    
     if (mounted) {
       setState(() {
         _hasInitialized = false;
@@ -123,7 +108,6 @@ class _WeatherModuleState extends ConsumerState<WeatherModule> {
 
   /// 强制刷新状态（调试用）
   void _forceRefresh() {
-    debugPrint('WeatherModule: 强制刷新状态');
     if (mounted) {
       setState(() {
         // 强制触发重建
@@ -133,11 +117,8 @@ class _WeatherModuleState extends ConsumerState<WeatherModule> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('WeatherModule: build() - _isCheckingApiKey: $_isCheckingApiKey, _isApiKeyConfigured: $_isApiKeyConfigured, _hasInitialized: $_hasInitialized');
-    
     // 如果正在检查API Key配置，显示加载状态
     if (_isCheckingApiKey) {
-      debugPrint('WeatherModule: 显示加载状态');
       return const Center(
         child: CircularProgressIndicator(),
       );
@@ -145,36 +126,14 @@ class _WeatherModuleState extends ConsumerState<WeatherModule> {
     
     // 如果API Key未配置，显示配置提示
     if (!_isApiKeyConfigured) {
-      debugPrint('WeatherModule: 显示API Key配置提示');
       return _buildApiKeyConfigPrompt();
     }
     
     // API Key已配置，显示天气数据
-    debugPrint('WeatherModule: 显示天气数据界面');
     final homeWeatherState = ref.watch(homeWeatherVmProvider);
-    
-    // 添加详细的状态调试信息
-    debugPrint('WeatherModule: homeWeatherState.currentLoadingStatus = ${homeWeatherState.currentLoadingStatus}');
-    debugPrint('WeatherModule: homeWeatherState.currentCity = ${homeWeatherState.currentCity}');
-    debugPrint('WeatherModule: homeWeatherState.currentWeather?.temp = ${homeWeatherState.currentWeather?.temp}');
-    debugPrint('WeatherModule: homeWeatherState.currentErrorMessage = ${homeWeatherState.currentErrorMessage}');
-    debugPrint('WeatherModule: homeWeatherState.cityLoadingStatus = ${homeWeatherState.cityLoadingStatus}');
-    debugPrint('WeatherModule: homeWeatherState.followedCitiesWeather?.length = ${homeWeatherState.followedCitiesWeather?.length}');
     
     return Column(
       children: [
-        // 添加一个测试按钮
-        if (homeWeatherState.currentLoadingStatus == LoadingStatus.initial)
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ElevatedButton(
-              onPressed: () {
-                debugPrint('WeatherModule: 手动触发数据加载');
-                ref.read(homeWeatherVmProvider.notifier).refreshCurrentWeather();
-              },
-              child: const Text('手动加载天气数据'),
-            ),
-          ),
         Expanded(
           flex: 2,
           child: GestureDetector(
@@ -247,7 +206,6 @@ class _WeatherModuleState extends ConsumerState<WeatherModule> {
               final result = await context.push<bool>(AppRoutes.weatherCitySettings);
               // 只有在数据发生变化时才刷新关注城市天气数据
               if (result == true) {
-                debugPrint('WeatherModule: 城市设置有变化，刷新关注城市天气');
                 ref.read(homeWeatherVmProvider.notifier).refreshCityWeather();
               }
             },
@@ -265,16 +223,12 @@ class _WeatherModuleState extends ConsumerState<WeatherModule> {
 
   /// 构建API Key配置提示组件
   Widget _buildApiKeyConfigPrompt() {
-    debugPrint('WeatherModule: 构建API Key配置提示组件');
     return GestureDetector(
       onTap: () async {
-        debugPrint('WeatherModule: 用户点击配置提示，跳转到配置页面');
         // 跳转到天气配置页面
         final result = await context.push<bool>(AppRoutes.weatherConfig);
-        debugPrint('WeatherModule: 配置页面返回结果: $result');
         // 如果配置成功，重新检查API Key
         if (result == true) {
-          debugPrint('WeatherModule: 配置成功，开始重新检查');
           _resetAndRecheck();
         }
       },

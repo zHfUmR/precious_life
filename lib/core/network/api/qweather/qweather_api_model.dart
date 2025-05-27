@@ -199,3 +199,194 @@ class QweatherMinutely with _$QweatherMinutely {
 
   factory QweatherMinutely.fromJson(Map<String, dynamic> json) => _$QweatherMinutelyFromJson(json);
 }
+
+/// 和风天气7天预报响应模型
+@freezed
+class QweatherDailyResponse with _$QweatherDailyResponse {
+  const factory QweatherDailyResponse({
+    /// 状态码
+    required String code,
+
+    /// 当前API的最近更新时间
+    String? updateTime,
+
+    /// 当前数据的响应式页面，便于嵌入网站或应用
+    String? fxLink,
+
+    /// 7天预报数据
+    List<QweatherDaily>? daily,
+
+    /// 数据引用信息
+    QweatherRefer? refer,
+  }) = _QweatherDailyResponse;
+
+  factory QweatherDailyResponse.fromJson(Map<String, dynamic> json) => _$QweatherDailyResponseFromJson(json);
+}
+
+/// 和风天气每日预报数据
+@freezed
+class QweatherDaily with _$QweatherDaily {
+  const factory QweatherDaily({
+    /// 预报日期
+    String? fxDate,
+
+    /// 日出时间，在高纬度地区可能为空
+    String? sunrise,
+
+    /// 日落时间，在高纬度地区可能为空
+    String? sunset,
+
+    /// 当天月升时间，可能为空
+    String? moonrise,
+
+    /// 当天月落时间，可能为空
+    String? moonset,
+
+    /// 月相名称
+    String? moonPhase,
+
+    /// 月相图标代码
+    String? moonPhaseIcon,
+
+    /// 预报当天最高温度
+    String? tempMax,
+
+    /// 预报当天最低温度
+    String? tempMin,
+
+    /// 预报白天天气状况的图标代码
+    String? iconDay,
+
+    /// 预报白天天气状况文字描述
+    String? textDay,
+
+    /// 预报夜间天气状况的图标代码
+    String? iconNight,
+
+    /// 预报晚间天气状况文字描述
+    String? textNight,
+
+    /// 预报白天风向360角度
+    String? wind360Day,
+
+    /// 预报白天风向
+    String? windDirDay,
+
+    /// 预报白天风力等级
+    String? windScaleDay,
+
+    /// 预报白天风速，公里/小时
+    String? windSpeedDay,
+
+    /// 预报夜间风向360角度
+    String? wind360Night,
+
+    /// 预报夜间当天风向
+    String? windDirNight,
+
+    /// 预报夜间风力等级
+    String? windScaleNight,
+
+    /// 预报夜间风速，公里/小时
+    String? windSpeedNight,
+
+    /// 相对湿度，百分比数值
+    String? humidity,
+
+    /// 预报当天总降水量，默认单位：毫米
+    String? precip,
+
+    /// 大气压强，默认单位：百帕
+    String? pressure,
+
+    /// 能见度，默认单位：公里
+    String? vis,
+
+    /// 云量，百分比数值。可能为空
+    String? cloud,
+
+    /// 紫外线强度指数
+    String? uvIndex,
+  }) = _QweatherDaily;
+
+  factory QweatherDaily.fromJson(Map<String, dynamic> json) => _$QweatherDailyFromJson(json);
+}
+
+/// 和风天气预警响应模型
+@freezed
+class QweatherWarningResponse with _$QweatherWarningResponse {
+  const factory QweatherWarningResponse({
+    /// 状态码
+    required String code,
+
+    /// 当前API的最近更新时间
+    String? updateTime,
+
+    /// 当前数据的响应式页面，便于嵌入网站或应用
+    String? fxLink,
+
+    /// 预警数据
+    List<QweatherWarning>? warning,
+
+    /// 数据引用信息
+    QweatherRefer? refer,
+  }) = _QweatherWarningResponse;
+
+  factory QweatherWarningResponse.fromJson(Map<String, dynamic> json) => _$QweatherWarningResponseFromJson(json);
+}
+
+/// 和风天气预警数据
+@freezed
+class QweatherWarning with _$QweatherWarning {
+  const factory QweatherWarning({
+    /// 本条预警的唯一标识
+    String? id,
+
+    /// 预警发布单位，可能为空
+    String? sender,
+
+    /// 预警发布时间
+    String? pubTime,
+
+    /// 预警信息标题
+    String? title,
+
+    /// 预警开始时间，可能为空
+    String? startTime,
+
+    /// 预警结束时间，可能为空
+    String? endTime,
+
+    /// 预警信息的发布状态
+    String? status,
+
+    /// 预警等级（已弃用）
+    String? level,
+
+    /// 预警严重等级
+    String? severity,
+
+    /// 预警严重等级颜色，可能为空
+    String? severityColor,
+
+    /// 预警类型ID
+    String? type,
+
+    /// 预警类型名称
+    String? typeName,
+
+    /// 预警信息的紧迫程度，可能为空
+    String? urgency,
+
+    /// 预警信息的确定性，可能为空
+    String? certainty,
+
+    /// 预警详细文字描述
+    String? text,
+
+    /// 与本条预警相关联的预警ID，可能为空
+    String? related,
+  }) = _QweatherWarning;
+
+  factory QweatherWarning.fromJson(Map<String, dynamic> json) => _$QweatherWarningFromJson(json);
+}

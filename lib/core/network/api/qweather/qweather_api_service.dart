@@ -42,4 +42,30 @@ class QweatherApiService {
       fromJson: QweatherMinutelyResponse.fromJson,
     );
   }
+
+  /// 7天天气预报查询接口
+  ///
+  /// 获取指定城市的7天天气预报信息
+  ///
+  /// [location] 城市名称、ID或经纬度坐标，例如：'深圳'、'101280604'或'113.92,22.53'
+  static Future<QweatherDailyResponse> getDailyForecast(String location) async {
+    return QweatherApiClient.instance.get<QweatherDailyResponse>(
+      path: '/v7/weather/7d',
+      queryParameters: {'location': location},
+      fromJson: QweatherDailyResponse.fromJson,
+    );
+  }
+
+  /// 天气预警查询接口
+  ///
+  /// 获取指定城市的天气预警信息
+  ///
+  /// [location] 城市名称、ID或经纬度坐标，例如：'深圳'、'101280604'或'113.92,22.53'
+  static Future<QweatherWarningResponse> getWeatherWarning(String location) async {
+    return QweatherApiClient.instance.get<QweatherWarningResponse>(
+      path: '/v7/warning/now',
+      queryParameters: {'location': location},
+      fromJson: QweatherWarningResponse.fromJson,
+    );
+  }
 }

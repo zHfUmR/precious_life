@@ -3,10 +3,11 @@
 class AppRoutes {
   AppRoutes._();
   static const String home = '/';
-  static const String homeTodo = '/home/todo';
-  static const String homeFeed = '/home/feed';
-  static const String homeTools = '/home/tools';
-  static const String widgetShowcase = '/widget-showcase';
-  static const String weatherCitySettings = '/weather/city-settings';
-  static const String citySearch = '/weather/city-search';
+  static const String homeTodo = '/home/todo';  // 首页-待办
+  static const String homeFeed = '/home/feed';  // 首页-动态
+  static const String homeTools = '/home/tools';  // 首页-工具
+  static const String widgetShowcase = '/widget-showcase';  // 组件展示
+  static const String weatherCitySettings = '/weather/city-settings';  // 天气-城市设置
+  static const String citySearch = '/weather/city-search';  // 天气-城市搜索
+  static const String weatherDetail = '/weather/detail';  // 天气-详情
 }

@@ -39,7 +39,7 @@ class _WeatherModuleState extends ConsumerState<WeatherModule> {
           flex: 2,
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTap: () => _homeWeatherVm.refreshCurrentWeather(),
+            onTap: () => context.push(AppRoutes.weatherDetail),
             child: LoadingStatusWidget(
               status: homeWeatherState.currentLoadingStatus,
               onRetry: () => _homeWeatherVm.refreshCurrentWeather(),
@@ -95,6 +95,7 @@ class _WeatherModuleState extends ConsumerState<WeatherModule> {
           flex: 3,
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
+            onTap: () => context.push(AppRoutes.weatherDetail),
             onDoubleTap: () => _homeWeatherVm.refreshCityWeather(),
             onLongPress: () async {
               final result = await context.push<bool>(AppRoutes.weatherCitySettings);

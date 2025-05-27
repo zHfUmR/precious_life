@@ -4,6 +4,7 @@ import 'package:precious_life/app/routes/route_constants.dart';
 import 'package:precious_life/features/home/ui/pages/home_page.dart';
 import 'package:precious_life/features/todo/ui/pages/settings/weather_city_settings_page.dart';
 import 'package:precious_life/features/todo/ui/pages/settings/city_search_page.dart';
+import 'package:precious_life/features/todo/ui/pages/detail/weather_detail_page.dart';
 
 
 /// 路由配置提供者
@@ -25,6 +26,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.citySearch,
         builder: (context, state) => const CitySearchPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.weatherDetail,
+        builder: (context, state) => const WeatherDetailPage(),
       ),
     ],
   );

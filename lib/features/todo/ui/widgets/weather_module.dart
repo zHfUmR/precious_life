@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:precious_life/app/routes/route_constants.dart';
 import 'package:precious_life/config/color_style.dart';
 import 'package:precious_life/config/text_style.dart';
+import 'package:precious_life/core/utils/weather_utils.dart';
 import 'package:precious_life/features/todo/data/models/home_weather_state.dart';
 import 'package:precious_life/features/todo/ui/providers/home_weather_vm.dart';
 import 'package:precious_life/shared/widgets/loading_status_widget.dart';
@@ -188,7 +189,7 @@ class _WeatherModuleState extends ConsumerState<WeatherModule> {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          _getWeatherIcon(weather?.icon),
+          WeatherUtils.getWeatherIcon(weather?.icon, 16),
           Text(
             '${weather?.temp ?? '--'}°C',
             style: CPTextStyles.s12.bold.c(CPColors.lightGrey),
@@ -199,101 +200,5 @@ class _WeatherModuleState extends ConsumerState<WeatherModule> {
     );
   }
 
-  /// 根据天气代码获取对应图标
-  Widget _getWeatherIcon(String? icon) {
-    if (icon == null) {
-      return const Icon(Icons.help_outline, size: 16, color: CPColors.lightGrey);
-    }
 
-    switch (icon) {
-      // 晴天
-      case '100':
-      case '150':
-        return const Icon(Icons.wb_sunny, size: 16, color: Colors.orange);
-
-      // 多云
-      case '101':
-      case '151':
-      case '102':
-      case '152':
-      case '103':
-      case '153':
-        return const Icon(Icons.wb_cloudy, size: 16, color: CPColors.lightGrey);
-
-      // 阴天
-      case '104':
-        return const Icon(Icons.cloud, size: 16, color: CPColors.darkGrey);
-
-      // 雨天
-      case '300':
-      case '301':
-      case '302':
-      case '303':
-      case '304':
-      case '305':
-      case '306':
-      case '307':
-      case '308':
-      case '309':
-      case '310':
-      case '311':
-      case '312':
-      case '313':
-      case '314':
-      case '315':
-      case '316':
-      case '317':
-      case '318':
-      case '350':
-      case '351':
-      case '399':
-        return const Icon(Icons.grain, size: 16, color: Colors.blue);
-
-      // 雪天
-      case '400':
-      case '401':
-      case '402':
-      case '403':
-      case '404':
-      case '405':
-      case '406':
-      case '407':
-      case '408':
-      case '409':
-      case '410':
-      case '456':
-      case '457':
-      case '499':
-        return const Icon(Icons.ac_unit, size: 16, color: Colors.lightBlue);
-
-      // 雾霾
-      case '500':
-      case '501':
-      case '502':
-      case '509':
-      case '510':
-      case '511':
-      case '512':
-      case '513':
-      case '514':
-      case '515':
-        return const Icon(Icons.blur_on, size: 16, color: CPColors.darkGrey);
-
-      // 沙尘
-      case '503':
-      case '504':
-      case '507':
-      case '508':
-        return const Icon(Icons.waves, size: 16, color: Colors.brown);
-
-      // 高温/低温
-      case '900':
-        return const Icon(Icons.whatshot, size: 16, color: Colors.red);
-      case '901':
-        return const Icon(Icons.ac_unit, size: 16, color: Colors.blue);
-
-      default:
-        return const Icon(Icons.wb_sunny, size: 16, color: CPColors.lightGrey);
-    }
-  }
 }

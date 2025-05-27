@@ -1,6 +1,9 @@
+// ignore_for_file: unused_import
+
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 import 'package:flutter/foundation.dart';
 
 /// API客户端封装了API服务的所有配置

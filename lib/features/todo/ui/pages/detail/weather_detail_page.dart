@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:precious_life/config/text_style.dart';
 import 'package:precious_life/core/utils/storage_utils.dart';
 import 'package:precious_life/features/todo/ui/models/followed_city.dart';
-import 'package:precious_life/features/todo/ui/pages/detail/weather_info_detail_page.dart';
+import 'package:precious_life/features/todo/ui/pages/detail/weather_info_page.dart';
 import 'package:precious_life/features/todo/ui/providers/home_weather_vm.dart';
 
 /// 天气详情页面
@@ -366,7 +366,7 @@ class _LazyLoadPageState extends State<_LazyLoadPage> {
     
     setState(() {
       _hasCreated = true;
-      _cachedPage = WeatherInfoDetailPage(
+      _cachedPage = WeatherInfoPage(
         key: ValueKey('weather_${widget.city.code}'),
         city: widget.city,
         onRefresh: widget.onRefresh,
@@ -384,9 +384,16 @@ class _LazyLoadPageState extends State<_LazyLoadPage> {
 
   /// 刷新页面（供外部调用）
   void _refreshPage() {
-    // 由于页面现在会保持状态，我们只需要触发onRefresh回调
-    if (widget.onRefresh != null) {
-      widget.onRefresh!();
+    // 重新创建页面以触发数据刷新
+    if (_hasCreated) {
+      setState(() {
+        _cachedPage = WeatherInfoPage(
+          key: ValueKey('weather_${widget.city.code}_${DateTime.now().millisecondsSinceEpoch}'),
+          city: widget.city,
+          onRefresh: widget.onRefresh,
+          shouldLoadData: true,
+        );
+      });
     }
   }
 

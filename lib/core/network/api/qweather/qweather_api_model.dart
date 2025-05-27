@@ -390,3 +390,78 @@ class QweatherWarning with _$QweatherWarning {
 
   factory QweatherWarning.fromJson(Map<String, dynamic> json) => _$QweatherWarningFromJson(json);
 }
+
+/// 和风天气24小时逐小时预报响应模型
+@freezed
+class QweatherHourlyResponse with _$QweatherHourlyResponse {
+  const factory QweatherHourlyResponse({
+    /// 状态码
+    required String code,
+
+    /// 当前API的最近更新时间
+    String? updateTime,
+
+    /// 当前数据的响应式页面，便于嵌入网站或应用
+    String? fxLink,
+
+    /// 逐小时预报数据
+    List<QweatherHourly>? hourly,
+
+    /// 数据引用信息
+    QweatherRefer? refer,
+  }) = _QweatherHourlyResponse;
+
+  factory QweatherHourlyResponse.fromJson(Map<String, dynamic> json) => _$QweatherHourlyResponseFromJson(json);
+}
+
+/// 和风天气逐小时预报数据
+@freezed
+class QweatherHourly with _$QweatherHourly {
+  const factory QweatherHourly({
+    /// 预报时间
+    String? fxTime,
+
+    /// 温度，默认单位：摄氏度
+    String? temp,
+
+    /// 天气状况的图标代码
+    String? icon,
+
+    /// 天气状况的文字描述
+    String? text,
+
+    /// 风向360角度
+    String? wind360,
+
+    /// 风向
+    String? windDir,
+
+    /// 风力等级
+    String? windScale,
+
+    /// 风速，公里/小时
+    String? windSpeed,
+
+    /// 相对湿度，百分比数值
+    String? humidity,
+
+    /// 逐小时预报降水概率，百分比数值，可能为空
+    String? pop,
+
+    /// 当前小时累计降水量，默认单位：毫米
+    String? precip,
+
+    /// 大气压强，默认单位：百帕
+    String? pressure,
+
+    /// 云量，百分比数值。可能为空
+    String? cloud,
+
+    /// 露点温度。可能为空
+    String? dew,
+  }) = _QweatherHourly;
+
+  factory QweatherHourly.fromJson(Map<String, dynamic> json) => _$QweatherHourlyFromJson(json);
+}
+
+

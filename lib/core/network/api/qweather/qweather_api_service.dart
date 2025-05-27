@@ -68,4 +68,19 @@ class QweatherApiService {
       fromJson: QweatherWarningResponse.fromJson,
     );
   }
+
+  /// 24小时逐小时天气预报查询接口
+  ///
+  /// 获取指定城市的24小时逐小时天气预报信息
+  ///
+  /// [location] 城市名称、ID或经纬度坐标，例如：'深圳'、'101280604'或'113.92,22.53'
+  static Future<QweatherHourlyResponse> getHourlyForecast(String location) async {
+    return QweatherApiClient.instance.get<QweatherHourlyResponse>(
+      path: '/v7/weather/24h',
+      queryParameters: {'location': location},
+      fromJson: QweatherHourlyResponse.fromJson,
+    );
+  }
+
+
 }

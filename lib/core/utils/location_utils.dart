@@ -59,7 +59,7 @@ class LocationUtils {
         distanceFilter: 0,
         forceLocationManager: false, // 使用FusedLocationProvider（推荐）
         intervalDuration: const Duration(seconds: 10),
-        timeLimit: const Duration(seconds: 20),
+        timeLimit: const Duration(seconds: 30),
       );
     } else if (Platform.isIOS) {
       // iOS平台特定配置
@@ -68,7 +68,7 @@ class LocationUtils {
         activityType: ActivityType.other,
         distanceFilter: 0,
         pauseLocationUpdatesAutomatically: true,
-        timeLimit: const Duration(seconds: 20),
+        timeLimit: const Duration(seconds: 30),
       );
     } else {
       // 其他平台使用通用配置

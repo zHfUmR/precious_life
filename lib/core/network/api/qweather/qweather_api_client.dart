@@ -37,6 +37,8 @@ class QweatherApiClient {
     return fromJson(respJson);
   }
 
+
+
   /// 执行API请求并处理响应
   /// 
   /// [path] API请求路径
@@ -58,6 +60,8 @@ class QweatherApiClient {
       throw ApiException.from(e);
     }
   }
+
+
 }
 
 /// 和风天气API拦截器

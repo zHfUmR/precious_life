@@ -19,4 +19,4 @@ void main() async {
   await StorageUtils.instance.init();
   // 运行应用
   runApp(const ProviderScope(child: App()));
-} 
+}

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:precious_life/core/utils/screen_utils.dart';
 import 'package:precious_life/features/todo/ui/widgets/dashboard_module.dart';
 
 /// 待办事项页面
@@ -18,8 +19,11 @@ class _TodoPageState extends ConsumerState<TodoPage> with AutomaticKeepAliveClie
   @override
   Widget build(BuildContext context) {
     super.build(context); // 必须调用super.build
-    return const Column(children: [
-      DashboardModule(),
-    ]);
+    return Padding(
+      padding: EdgeInsets.all(ScreenUtils.widgetEdgeDistance),
+      child: const Column(children: [
+        DashboardModule(),
+      ]),
+    );
   }
-} 
+}

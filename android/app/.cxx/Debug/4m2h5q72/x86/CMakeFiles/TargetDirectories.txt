@@ -1,0 +1,2 @@
+/Users/jay/Project/flutter/precious_life/android/app/.cxx/Debug/4m2h5q72/x86/CMakeFiles/edit_cache.dir
+/Users/jay/Project/flutter/precious_life/android/app/.cxx/Debug/4m2h5q72/x86/CMakeFiles/rebuild_cache.dir

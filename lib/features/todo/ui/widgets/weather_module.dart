@@ -8,7 +8,6 @@ import 'package:precious_life/core/utils/weather_utils.dart';
 import 'package:precious_life/features/todo/data/models/home_weather_state.dart';
 import 'package:precious_life/features/todo/ui/providers/home_weather_vm.dart';
 import 'package:precious_life/shared/widgets/loading_status_widget.dart';
-import 'dart:async';
 
 /// 天气模块组件
 class WeatherModule extends ConsumerStatefulWidget {
@@ -124,14 +123,17 @@ class _WeatherModuleState extends ConsumerState<WeatherModule> {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () async {
+        // 如果关注城市为空，则进入设置页面
         if (homeWeatherState.weatherFollowedState.followedCitiesWeather == null ||
             homeWeatherState.weatherFollowedState.followedCitiesWeather!.isEmpty) {
           final hasChanged = await GoRouter.of(context).push<bool>(AppRoutes.weatherCitySettings);
           if (hasChanged == true) _homeWeatherVm.weatherFollowed();
         } else {
+          // 如果关注城市不为空，则进入天气详情页面
           GoRouter.of(context).push(AppRoutes.weatherDetail);
         }
       },
+      onDoubleTap: () => _homeWeatherVm.weatherFollowed(),
       onLongPress: () async {
         final hasChanged = await GoRouter.of(context).push<bool>(AppRoutes.weatherCitySettings);
         if (hasChanged == true) _homeWeatherVm.weatherFollowed();

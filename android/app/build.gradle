@@ -29,8 +29,12 @@ android {
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
     }
 
     defaultConfig {
@@ -56,9 +60,9 @@ android {
 // 解决Kotlin版本冲突
 configurations.all {
     resolutionStrategy {
-        force "org.jetbrains.kotlin:kotlin-stdlib:1.8.22"
-        force "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22"
-        force "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22"
+        force "org.jetbrains.kotlin:kotlin-stdlib:1.9.20"
+        force "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.20"
+        force "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.20"
     }
 }
 

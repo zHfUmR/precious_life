@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:precious_life/app/routes/route_constants.dart';
 import 'package:precious_life/config/color_style.dart';
+import 'package:precious_life/core/utils/screen_utils.dart';
 
 /// 工具页面
 class ToolsPage extends ConsumerStatefulWidget {
@@ -23,7 +24,7 @@ class _ToolsPageState extends ConsumerState<ToolsPage> with AutomaticKeepAliveCl
     return Scaffold(
       backgroundColor: CPColors.transparent,
       body: GridView.builder(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(ScreenUtils.widgetEdgeDistance),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           crossAxisSpacing: 16,
@@ -47,8 +48,7 @@ class _ToolsPageState extends ConsumerState<ToolsPage> with AutomaticKeepAliveCl
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-        },
+        onPressed: () {},
         child: const Icon(Icons.add),
       ),
     );
@@ -202,4 +202,4 @@ final List<Tool> _tools = [
     color: Colors.amber,
     route: '/tools/shopping_list',
   ),
-]; 
+];

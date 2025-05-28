@@ -550,6 +550,12 @@ class WeatherUtils {
         return weekdays[date.weekday - 1];
     }
   }
+
+  static Future<bool> isWeatherApiKeyValid() async {
+    final isConfigured = await isWeatherApiKeyConfigured();
+    if (!isConfigured) return false;
+    return true;
+  }
 }
 
 /// 天气图标数据类

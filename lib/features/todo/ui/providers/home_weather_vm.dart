@@ -3,12 +3,11 @@ import 'package:precious_life/config/app_config.dart';
 import 'package:precious_life/core/network/api/qweather/qweather_api_service.dart';
 import 'package:precious_life/core/utils/location_utils.dart';
 import 'package:precious_life/core/utils/storage_utils.dart';
+import 'package:precious_life/core/utils/weather_utils.dart';
 import 'package:precious_life/features/todo/data/models/home_weather_state.dart';
 import 'package:precious_life/features/todo/ui/models/followed_city.dart';
 import 'package:precious_life/shared/widgets/loading_status_widget.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:flutter/foundation.dart';
-
 part 'home_weather_vm.g.dart';
 
 /// 天气数据提供者
@@ -16,13 +15,62 @@ part 'home_weather_vm.g.dart';
 class HomeWeatherVm extends _$HomeWeatherVm {
   /// 构建初始状态
   @override
-  HomeWeatherState build() =>
-      const HomeWeatherState(currentLoadingStatus: LoadingStatus.initial, cityLoadingStatus: LoadingStatus.initial);
+  HomeWeatherState build() => const HomeWeatherState(
+        weatherConfigState: WeatherConfigState(loadingStatus: LoadingStatus.initial),
+        weatherLocationState: WeatherLocationState(loadingStatus: LoadingStatus.initial),
+        weatherFollowedState: WeatherFollowedState(loadingStatus: LoadingStatus.initial),
+      );
 
-  // 获取当前位置的经纬度
-  Future<void> refreshCurrentWeather() async {
-    state = state.copyWith(currentLoadingStatus: LoadingStatus.loading);
-    
+  /// 初始化，流程：
+  ///
+  /// 1. 检查Key是否配置，是否可用，更新weatherConfigState的状态
+  /// 2. 检查是否可以获取位置，更新weatherLocationState的状态
+  /// 3. 获取当前位置的天气，更新weatherFollowedState的状态
+  /// 4. 获取关注城市列表，更新weatherFollowedState的状态
+  /// 5. 获取关注城市列表的天气，更新weatherFollowedState的状态
+  ///
+  Future<void> init() async {
+    await weatherConfig();
+    if (state.weatherConfigState.loadingStatus == LoadingStatus.failure) return;
+    weatherLocation();
+    weatherFollowed();
+  }
+
+  /// 天气配置
+  Future<void> weatherConfig() async {
+    state = state.copyWith(weatherConfigState: const WeatherConfigState(loadingStatus: LoadingStatus.loading));
+    try {
+      final isConfigured = await WeatherUtils.isWeatherApiKeyConfigured();
+      if (isConfigured) {
+        // 检查API Key是否可用
+        final isApiKeyValid = await WeatherUtils.isWeatherApiKeyValid();
+        if (isApiKeyValid) {
+          state = state.copyWith(weatherConfigState: const WeatherConfigState(loadingStatus: LoadingStatus.success));
+        } else {
+          state = state.copyWith(
+              weatherConfigState:
+                  const WeatherConfigState(loadingStatus: LoadingStatus.failure, errorMessage: 'API Key不可用'));
+        }
+      } else {
+        state = state.copyWith(
+            weatherConfigState:
+                const WeatherConfigState(loadingStatus: LoadingStatus.failure, errorMessage: 'API Key未配置'));
+      }
+    } catch (e) {
+      state = state.copyWith(
+          weatherConfigState:
+              WeatherConfigState(loadingStatus: LoadingStatus.failure, errorMessage: 'API Key配置失败: $e'));
+    }
+  }
+
+  /// 天气定位，流程
+  ///
+  /// 1. 检查AppConfig中的经纬度是否为0，如果为0，则获取当前位置的经纬度
+  /// 2. 如果AppConfig中的经纬度不为0，则使用AppConfig中的经纬度拼接locationStr
+  /// 3. 使用locationStr获取当前位置的天气
+  /// 4. 更新weatherLocationState的状态
+  Future<void> weatherLocation() async {
+    state = state.copyWith(weatherLocationState: const WeatherLocationState(loadingStatus: LoadingStatus.loading));
     if (AppConfig.currentLatitude == 0 && AppConfig.currentLongitude == 0) {
       Position location;
       try {
@@ -32,16 +80,12 @@ class HomeWeatherVm extends _$HomeWeatherVm {
         AppConfig.currentLongitude = location.longitude;
       } catch (e) {
         state = state.copyWith(
-          currentLoadingStatus: LoadingStatus.failure, 
-          currentErrorMessage: '位置获取失败: ${e.toString()}'
-        );
+            weatherLocationState:
+                WeatherLocationState(loadingStatus: LoadingStatus.failure, errorMessage: '位置获取失败: ${e.toString()}'));
         return;
       }
     }
-    
-    // 使用AppConfig的经纬度值拼接locationStr
     final locationStr = "${AppConfig.currentLongitude},${AppConfig.currentLatitude}";
-    
     try {
       final futures = await Future.wait([
         QweatherApiService.lookupCity(locationStr),
@@ -51,40 +95,73 @@ class HomeWeatherVm extends _$HomeWeatherVm {
       final locationData = futures[0] as dynamic;
       final weatherData = futures[1] as dynamic;
       final rainData = futures[2] as dynamic;
-      
       final newState = state.copyWith(
-        currentLoadingStatus: LoadingStatus.success,
-        currentLatitude: AppConfig.currentLatitude,
-        currentLongitude: AppConfig.currentLongitude,
-        currentCity: "${locationData.location![0].adm2}-${locationData.location![0].name}",
-        currentWeather: weatherData.now,
-        currentMinutelyRain: rainData,
-        currentErrorMessage: null, // 清除之前的错误信息
+        weatherLocationState: WeatherLocationState(
+            loadingStatus: LoadingStatus.success,
+            currentLatitude: AppConfig.currentLatitude,
+            currentLongitude: AppConfig.currentLongitude,
+            currentCity: "${locationData.location![0].adm2}-${locationData.location![0].name}",
+            currentWeather: weatherData.now,
+            currentMinutelyRain: rainData),
       );
-      
       state = newState;
     } catch (e) {
       state = state.copyWith(
-        currentLoadingStatus: LoadingStatus.failure, 
-        currentErrorMessage: '天气数据获取失败: ${e.toString()}'
-      );
+          weatherLocationState:
+              WeatherLocationState(loadingStatus: LoadingStatus.failure, errorMessage: '天气数据获取失败: ${e.toString()}'));
+    }
+  }
+
+  /// 关注城市天气，流程
+  ///
+  /// 1. 获取关注城市列表
+  /// 2. 获取关注城市列表的天气
+  /// 3. 更新weatherFollowedState的状态
+  Future<void> weatherFollowed() async {
+    state = state.copyWith(weatherFollowedState: const WeatherFollowedState(loadingStatus: LoadingStatus.loading));
+    try {
+      final citiesData = await StorageUtils.instance.getObjectList(StorageKeys.followedCities);
+      if (citiesData == null || citiesData.isEmpty) {
+        state = state.copyWith(
+            weatherFollowedState:
+                const WeatherFollowedState(loadingStatus: LoadingStatus.success, followedCitiesWeather: []));
+        return;
+      }
+      final followedCities = citiesData.map((data) => FollowedCity.fromJson(data)).toList();
+      // 按照order排序
+      followedCities.sort((a, b) => a.order.compareTo(b.order));
+      final List<FollowedCityWeather> citiesWeather = [];
+      for (final city in followedCities) {
+        try {
+          final locationStr = "${city.longitude},${city.latitude}";
+          final weatherResponse = await QweatherApiService.getNowWeather(locationStr);
+          citiesWeather.add(FollowedCityWeather(city: city, weather: weatherResponse.now));
+        } catch (e) {
+          citiesWeather.add(FollowedCityWeather(city: city, errorMessage: e.toString()));
+        }
+      }
+      state = state.copyWith(
+          weatherFollowedState:
+              WeatherFollowedState(loadingStatus: LoadingStatus.success, followedCitiesWeather: citiesWeather));
+    } catch (e) {
+      state = state.copyWith(
+          weatherFollowedState:
+              WeatherFollowedState(loadingStatus: LoadingStatus.failure, errorMessage: '关注城市天气获取失败: ${e.toString()}'));
     }
   }
 
   /// 刷新关注城市列表天气
   Future<void> refreshCityWeather() async {
-    state = state.copyWith(cityLoadingStatus: LoadingStatus.loading);
-    
+    state = state.copyWith(weatherFollowedState: const WeatherFollowedState(loadingStatus: LoadingStatus.loading));
+
     try {
       // 从本地存储加载关注的城市列表
       final citiesData = await StorageUtils.instance.getObjectList(StorageKeys.followedCities);
-      
+
       if (citiesData == null || citiesData.isEmpty) {
         state = state.copyWith(
-          cityLoadingStatus: LoadingStatus.success,
-          followedCitiesWeather: [],
-          cityErrorMessage: null,
-        );
+            weatherFollowedState:
+                const WeatherFollowedState(loadingStatus: LoadingStatus.success, followedCitiesWeather: []));
         return;
       }
 
@@ -94,12 +171,12 @@ class HomeWeatherVm extends _$HomeWeatherVm {
 
       // 并发获取所有关注城市的天气数据
       final List<FollowedCityWeather> citiesWeather = [];
-      
+
       for (final city in followedCities) {
         try {
           final locationStr = "${city.longitude},${city.latitude}";
           final weatherResponse = await QweatherApiService.getNowWeather(locationStr);
-          
+
           citiesWeather.add(FollowedCityWeather(
             city: city,
             weather: weatherResponse.now,
@@ -114,14 +191,13 @@ class HomeWeatherVm extends _$HomeWeatherVm {
       }
 
       state = state.copyWith(
-        cityLoadingStatus: LoadingStatus.success,
-        followedCitiesWeather: citiesWeather,
-        cityErrorMessage: null,
+        weatherFollowedState:
+            WeatherFollowedState(loadingStatus: LoadingStatus.success, followedCitiesWeather: citiesWeather),
       );
     } catch (e) {
       state = state.copyWith(
-        cityLoadingStatus: LoadingStatus.failure,
-        cityErrorMessage: '关注城市天气获取失败: ${e.toString()}',
+        weatherFollowedState:
+            WeatherFollowedState(loadingStatus: LoadingStatus.failure, errorMessage: '关注城市天气获取失败: ${e.toString()}'),
       );
     }
   }

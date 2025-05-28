@@ -47,18 +47,18 @@ class _WeatherDetailPageState extends ConsumerState<WeatherDetailPage> {
 
       // 添加当前定位城市（如果有的话）
       final homeWeatherState = ref.read(homeWeatherVmProvider);
-      if (homeWeatherState.currentCity != null &&
-          homeWeatherState.currentLatitude != null &&
-          homeWeatherState.currentLongitude != null) {
+      if (homeWeatherState.weatherLocationState.currentCity != null &&
+          homeWeatherState.weatherLocationState.currentLatitude != null &&
+          homeWeatherState.weatherLocationState.currentLongitude != null) {
         // 解析当前城市名称
-        final cityParts = homeWeatherState.currentCity!.split('-');
+        final cityParts = homeWeatherState.weatherLocationState.currentCity!.split('-');
         final currentCity = FollowedCity(
           province: cityParts.length > 1 ? cityParts[0] : '当前位置',
           name: cityParts.length > 1 ? cityParts[0] : '当前位置',
           region: cityParts.length > 1 ? cityParts[1] : '当前位置',
           code: 'current_location',
-          latitude: homeWeatherState.currentLatitude!,
-          longitude: homeWeatherState.currentLongitude!,
+          latitude: homeWeatherState.weatherLocationState.currentLatitude!,
+          longitude: homeWeatherState.weatherLocationState.currentLongitude!,
           order: -1, // 定位城市排在最前面
         );
         cities.add(currentCity);

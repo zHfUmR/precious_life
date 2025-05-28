@@ -102,7 +102,7 @@ class LocationUtils {
       print("获取当前位置超时，尝试获取最后已知位置");
       return await _tryGetLastKnownPositionOrThrow(
         '获取位置信息超时，且无可用的历史位置数据',
-        () => TimeoutException('获取位置信息超时，且无可用的历史位置数据', const Duration(seconds: 20))
+        () => TimeoutException('获取位置信息超时，且无可用的历史位置数据', const Duration(seconds: 30))
       );
     } catch (e) {
       print("获取当前位置失败: ${e.toString()}");

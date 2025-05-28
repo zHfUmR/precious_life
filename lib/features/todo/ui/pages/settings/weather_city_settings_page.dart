@@ -22,7 +22,6 @@ class WeatherCitySettingsPage extends ConsumerStatefulWidget {
 
 class _WeatherCitySettingsPageState extends ConsumerState<WeatherCitySettingsPage> with TickerProviderStateMixin {
   List<FollowedCity> _followedCities = [];
-  List<FollowedCity> _originalFollowedCities = []; // 记录初始状态，用于比较是否有变化
   bool _isLoading = true;
   AnimationController? _animationController;
   Animation<double>? _fadeAnimation;
@@ -52,8 +51,8 @@ class _WeatherCitySettingsPageState extends ConsumerState<WeatherCitySettingsPag
 
   /// 处理页面返回，传递数据是否发生变化的信息
   void _handlePageReturn() {
-    final hasChanged = _hasDataChanged || _hasFollowedCitiesChanged();
-    context.pop(hasChanged);
+    // 只需要检查_hasDataChanged即可，因为所有数据变化都会设置这个标记
+    GoRouter.of(context).pop(_hasDataChanged);
   }
 
   /// 加载关注的城市列表
@@ -67,14 +66,11 @@ class _WeatherCitySettingsPageState extends ConsumerState<WeatherCitySettingsPag
         cities.sort((a, b) => a.order.compareTo(b.order));
         setState(() {
           _followedCities = cities;
-          // 保存初始状态的深拷贝，用于后续比较
-          _originalFollowedCities = cities.map((city) => FollowedCity.fromJson(city.toJson())).toList();
           _hasDataChanged = false;
         });
       } else {
         setState(() {
           _followedCities = [];
-          _originalFollowedCities = [];
           _hasDataChanged = false;
         });
       }
@@ -87,37 +83,14 @@ class _WeatherCitySettingsPageState extends ConsumerState<WeatherCitySettingsPag
     }
   }
 
-  /// 检测城市列表是否发生变化
-  bool _hasFollowedCitiesChanged() {
-    // 首先检查数量是否相同
-    if (_followedCities.length != _originalFollowedCities.length) {
-      return true;
-    }
-
-    // 检查每个城市的顺序和内容是否相同
-    for (int i = 0; i < _followedCities.length; i++) {
-      final current = _followedCities[i];
-      final original = _originalFollowedCities[i];
-
-      // 比较关键字段：code、order
-      if (current.code != original.code || current.order != original.order) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
   /// 保存关注的城市列表
   Future<void> _saveFollowedCities() async {
     try {
       final citiesData = _followedCities.map((city) => city.toJson()).toList();
       await StorageUtils.instance.setObjectList(StorageKeys.followedCities, citiesData);
 
-      // 检测数据是否真的发生了变化
-      if (_hasFollowedCitiesChanged()) {
-        _hasDataChanged = true;
-        // 保存成功后刷新天气模块的关注城市天气数据
+      // 保存成功后刷新天气模块的关注城市天气数据
+      if (_hasDataChanged) {
         _homeWeatherVm.refreshCityWeather();
       }
     } catch (e) {
@@ -134,7 +107,10 @@ class _WeatherCitySettingsPageState extends ConsumerState<WeatherCitySettingsPag
     }
 
     final newCity = FollowedCity.fromCityInfo(cityInfo, _followedCities.length);
-    setState(() => _followedCities.add(newCity));
+    setState(() {
+      _followedCities.add(newCity);
+      _hasDataChanged = true; // 标记数据已变化
+    });
     await _saveFollowedCities();
   }
 
@@ -143,6 +119,7 @@ class _WeatherCitySettingsPageState extends ConsumerState<WeatherCitySettingsPag
     setState(() {
       _followedCities.removeAt(index);
       _swipedIndex = null; // 重置滑动状态
+      _hasDataChanged = true; // 标记数据已变化
     });
 
     // 重新排序
@@ -165,7 +142,9 @@ class _WeatherCitySettingsPageState extends ConsumerState<WeatherCitySettingsPag
       _followedCities[i] = _followedCities[i].copyWith(order: i);
     }
 
-    setState(() {});
+    setState(() {
+      _hasDataChanged = true; // 标记数据已变化
+    });
     await _saveFollowedCities();
   }
 

@@ -6,28 +6,28 @@ import 'package:precious_life/core/utils/storage_utils.dart';
 class AppConfig {
   // 私有构造函数，防止外部实例化
   AppConfig._();
-  
+
   // 应用版本
   static String appVersion = '1.0.0';
-  
+
   // API基础URL
-  static String apiBaseUrl = kDebugMode 
+  static String apiBaseUrl = kDebugMode
       ? 'https://api-dev.preciouslife.com/v1' // 开发环境
-      : 'https://api.preciouslife.com/v1';    // 生产环境
-  
+      : 'https://api.preciouslife.com/v1'; // 生产环境
+
   // 是否启用分析
   static bool enableAnalytics = !kDebugMode;
-  
+
   /// 初始化应用配置
   /// 在应用启动时调用
   static Future<void> initialize() async {
     // 在这里可以进行一些异步的初始化操作
     // 例如：读取本地存储的配置、初始化第三方服务等
-    
+
     // 从存储中加载天气API Key
     try {
       final savedApiKey = await StorageUtils.instance.getString(StorageKeys.weatherApiKey);
-      
+
       if (savedApiKey != null && savedApiKey.isNotEmpty) {
         qweatherApiKey = savedApiKey;
       }
@@ -45,4 +45,7 @@ class AppConfig {
   static String qweatherBaseUrl = "https://m4359dtk6r.re.qweatherapi.com";
   static String qweatherApiKey = "";
 
-} 
+  // 天地图【http://lbs.tianditu.gov.cn/server/geocoding.html】
+  static String tiandituBaseUrl = "http://api.tianditu.gov.cn";
+  static String tiandituApiKey = "";
+}

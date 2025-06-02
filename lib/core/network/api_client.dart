@@ -5,6 +5,8 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:flutter/foundation.dart';
+import '../utils/log/log_utils.dart';
+import 'api_exception.dart';
 
 /// API客户端封装了API服务的所有配置
 class ApiClient {
@@ -44,7 +46,7 @@ class ApiClient {
         responseHeader: true,
         responseBody: true,
         logPrint: (log) {
-          print('🌐 HTTP: $log');
+          LogUtils.d('🌐 HTTP: $log');
         },
       ));
       // dio.httpClientAdapter = IOHttpClientAdapter(createHttpClient: () => localProxyHttpClient());

@@ -1,6 +1,7 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:precious_life/config/app_config.dart';
 import 'package:precious_life/core/network/api/qweather/qweather_api_service.dart';
+import 'package:precious_life/core/network/api/tianditu/tianditu_api_service.dart';
 import 'package:precious_life/core/utils/location_utils.dart';
 import 'package:precious_life/core/utils/storage_utils.dart';
 import 'package:precious_life/core/utils/weather_utils.dart';
@@ -88,6 +89,10 @@ class HomeWeatherVm extends _$HomeWeatherVm {
     final locationStr = "${AppConfig.currentLongitude},${AppConfig.currentLatitude}";
     try {
       final futures = await Future.wait([
+        TiandituApiService.instance.reverseGeocoding(
+          longitude: AppConfig.currentLongitude,
+          latitude: AppConfig.currentLatitude,
+        ),
         QweatherApiService.lookupCity(locationStr),
         QweatherApiService.getNowWeather(locationStr),
         QweatherApiService.getMinutelyRain(locationStr),
@@ -100,7 +105,7 @@ class HomeWeatherVm extends _$HomeWeatherVm {
             loadingStatus: LoadingStatus.success,
             currentLatitude: AppConfig.currentLatitude,
             currentLongitude: AppConfig.currentLongitude,
-            currentCity: "${locationData.location![0].adm2}-${locationData.location![0].name}",
+            currentCity: "${locationData.result?.formattedAddress ?? '未知位置'}",
             currentWeather: weatherData.now,
             currentMinutelyRain: rainData),
       );

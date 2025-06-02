@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
+import '../../../utils/log/log_utils.dart';
+import '../../api_client.dart';
 import 'package:precious_life/config/app_config.dart';
-import 'package:precious_life/core/network/api_client.dart';
 import 'package:precious_life/core/network/api_exception.dart';
-import 'package:flutter/foundation.dart';
 
 /// 和风天气API客户端
 /// 负责和风天气API的请求处理，使用单例模式
@@ -21,26 +21,26 @@ class QweatherApiClient {
     ],
   );
   Dio get dio => _apiClient.dio;
-  
+
   /// 处理和风天气API响应
-  /// 
+  ///
   /// [response] Dio响应对象
   /// [fromJson] 从JSON转换为对象的函数
   /// 返回处理后的对象
   Future<T> handleResponse<T>(Response response, T Function(Map<String, dynamic> json) fromJson) async {
     final respJson = response.data;
-    debugPrint('QweatherApiClient: 处理响应 - code: ${respJson['code']}, message: ${respJson['message'] ?? '无'}');
-    
+    LogUtils.d('QweatherApiClient: 处理响应 - code: ${respJson['code']}, message: ${respJson['message'] ?? '无'}');
+
     if (respJson['error'] != null) {
-      debugPrint('QweatherApiClient: API返回错误 - ${respJson['error']}');
+      LogUtils.d('QweatherApiClient: API返回错误 - ${respJson['error']}');
       throw ApiException(respJson['error']['status'], respJson['error']['detail']);
     }
-    
+
     if (respJson['code'] != '200') {
       final errorCode = respJson['code'];
       final errorMessage = respJson['message'] ?? '未知错误';
-      debugPrint('QweatherApiClient: API状态码错误 - code: $errorCode, message: $errorMessage');
-      
+      LogUtils.d('QweatherApiClient: API状态码错误 - code: $errorCode, message: $errorMessage');
+
       // 根据和风天气的错误码提供更友好的错误信息
       String friendlyMessage = errorMessage;
       switch (errorCode) {
@@ -63,16 +63,16 @@ class QweatherApiClient {
           friendlyMessage = '和风天气服务器内部错误';
           break;
       }
-      
+
       throw ApiException(errorCode, friendlyMessage);
     }
-    
-    debugPrint('QweatherApiClient: 响应处理成功，开始解析数据');
+
+    LogUtils.d('QweatherApiClient: 响应处理成功，开始解析数据');
     return fromJson(respJson);
   }
 
   /// 执行API请求并处理响应
-  /// 
+  ///
   /// [path] API请求路径
   /// [queryParameters] 查询参数
   /// [fromJson] 从JSON转换为对象的函数
@@ -83,21 +83,22 @@ class QweatherApiClient {
     required T Function(Map<String, dynamic> json) fromJson,
   }) async {
     try {
-      debugPrint('QweatherApiClient: 发起请求 - path: $path, params: $queryParameters');
-      debugPrint('QweatherApiClient: API Key: ${AppConfig.qweatherApiKey.isNotEmpty ? AppConfig.qweatherApiKey.substring(0, 8) + '...' : '空'}');
-      
+      LogUtils.d('QweatherApiClient: 发起请求 - path: $path, params: $queryParameters');
+      LogUtils.d(
+          'QweatherApiClient: API Key: ${AppConfig.qweatherApiKey.isNotEmpty ? '${AppConfig.qweatherApiKey.substring(0, 8)}...' : '空'}');
+
       final response = await dio.get(
         path,
         queryParameters: queryParameters,
       );
-      
-      debugPrint('QweatherApiClient: 请求成功 - statusCode: ${response.statusCode}');
-      debugPrint('QweatherApiClient: 响应数据: ${response.data}');
-      
+
+      LogUtils.d('QweatherApiClient: 请求成功 - statusCode: ${response.statusCode}');
+      LogUtils.d('QweatherApiClient: 响应数据: ${response.data}');
+
       return handleResponse(response, fromJson);
     } catch (e) {
-      debugPrint('QweatherApiClient: 请求失败 - $e');
-      debugPrint('QweatherApiClient: 错误类型 - ${e.runtimeType}');
+      LogUtils.d('QweatherApiClient: 请求失败 - $e');
+      LogUtils.d('QweatherApiClient: 错误类型 - ${e.runtimeType}');
       throw ApiException.from(e);
     }
   }

@@ -1,7 +1,7 @@
-
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import '../utils/log/log_utils.dart';
 
 /// 自定义请求异常父类
 class ApiException implements Exception {
@@ -62,7 +62,7 @@ class ApiException implements Exception {
 
   // 将各种异常转换为ApiException方便进行统一处理
   factory ApiException.from(dynamic exception) {
-    print("ApiException.from: $exception");
+    LogUtils.d("ApiException.from: $exception");
     if (exception is DioException) {
       return ApiException.fromDioException(exception);
     } else if (exception is ApiException) {

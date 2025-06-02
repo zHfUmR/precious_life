@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:precious_life/config/color_style.dart';
 import 'package:precious_life/config/text_style.dart';
 import 'package:precious_life/core/utils/city_utils.dart';
+import 'package:precious_life/core/utils/log/log_utils.dart';
 import 'package:precious_life/core/utils/storage_utils.dart';
 import 'package:precious_life/features/todo/ui/models/followed_city.dart';
 import 'package:precious_life/features/todo/ui/widgets/weather_bottom_sheet.dart';
@@ -47,8 +48,7 @@ class _CitySearchPageState extends ConsumerState<CitySearchPage> {
         });
       }
     } catch (e) {
-      // 加载失败时不影响搜索功能
-      debugPrint('加载关注城市失败: $e');
+      LogUtils.d('加载关注城市失败: $e');
     }
   }
 
@@ -266,7 +266,7 @@ class _CitySearchPageState extends ConsumerState<CitySearchPage> {
                 final city = _searchResults[index];
                 final isLast = index == _searchResults.length - 1;
                 final isFollowed = _isCityFollowed(city);
-                
+
                 return Container(
                   decoration: BoxDecoration(
                     border: isLast
@@ -326,4 +326,4 @@ class _CitySearchPageState extends ConsumerState<CitySearchPage> {
       ),
     );
   }
-} 
+}

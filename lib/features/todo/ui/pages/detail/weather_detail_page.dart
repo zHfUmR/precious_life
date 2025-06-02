@@ -6,6 +6,7 @@ import 'package:precious_life/core/utils/storage_utils.dart';
 import 'package:precious_life/features/todo/ui/models/followed_city.dart';
 import 'package:precious_life/features/todo/ui/pages/detail/weather_info_page.dart';
 import 'package:precious_life/features/todo/ui/providers/home_weather_vm.dart';
+import '../../../../../core/utils/log/log_utils.dart';
 
 /// 天气详情页面
 /// 全屏显示，包含定位城市和关注城市的天气详情
@@ -21,7 +22,7 @@ class _WeatherDetailPageState extends ConsumerState<WeatherDetailPage> {
   List<FollowedCity> _allCities = [];
   int _currentIndex = 0;
   bool _isLoading = true;
-  
+
   /// 懒加载页面的GlobalKey，用于刷新特定页面
   final Map<int, GlobalKey<_LazyLoadPageState>> _pageKeys = {};
 
@@ -83,7 +84,7 @@ class _WeatherDetailPageState extends ConsumerState<WeatherDetailPage> {
       });
     } catch (e) {
       setState(() => _isLoading = false);
-      debugPrint('加载城市数据失败: $e');
+      LogUtils.d('加载城市数据失败: $e');
     }
   }
 
@@ -316,10 +317,13 @@ class _WeatherDetailPageState extends ConsumerState<WeatherDetailPage> {
 class _LazyLoadPage extends StatefulWidget {
   /// 城市信息
   final FollowedCity city;
+
   /// 是否为当前活跃页面
   final bool isActive;
+
   /// 是否应该加载数据
   final bool shouldLoad;
+
   /// 刷新回调
   final VoidCallback? onRefresh;
 
@@ -338,13 +342,14 @@ class _LazyLoadPage extends StatefulWidget {
 class _LazyLoadPageState extends State<_LazyLoadPage> {
   /// 是否已经创建过页面
   bool _hasCreated = false;
+
   /// 缓存的天气页面组件
   Widget? _cachedPage;
 
   @override
   void didUpdateWidget(_LazyLoadPage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
+
     // 如果从不需要加载变为需要加载，则创建页面
     if (!oldWidget.shouldLoad && widget.shouldLoad && !_hasCreated) {
       _createPage();
@@ -363,7 +368,7 @@ class _LazyLoadPageState extends State<_LazyLoadPage> {
   /// 创建页面组件
   void _createPage() {
     if (_hasCreated) return;
-    
+
     setState(() {
       _hasCreated = true;
       _cachedPage = WeatherInfoPage(
@@ -519,4 +524,4 @@ class _LazyLoadPageState extends State<_LazyLoadPage> {
           ),
         ),
       );
-} 
+}

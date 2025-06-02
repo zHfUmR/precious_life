@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:precious_life/core/utils/screen_utils.dart';
 import 'package:precious_life/features/feed/ui/pages/feed_page.dart';
 import 'package:precious_life/features/todo/ui/pages/todo_page.dart';
 import 'package:precious_life/features/tools/ui/pages/tools_page.dart';

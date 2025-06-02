@@ -1,0 +1,9 @@
+---
+description: 
+globs: *.dart
+alwaysApply: false
+---
+# Flutter 项目开发规范
+
+- 使用 LogUtils.d() 进行日志打印
+- 使用@freezed定义实体类，不要使用@JsonKey注解定义属性

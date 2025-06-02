@@ -10,6 +10,7 @@ import 'package:precious_life/core/utils/storage_utils.dart';
 import 'package:precious_life/features/todo/ui/models/followed_city.dart';
 import 'package:precious_life/features/todo/ui/providers/home_weather_vm.dart';
 import 'package:precious_life/features/todo/ui/widgets/weather_bottom_sheet.dart';
+import '../../../../../core/utils/log/log_utils.dart';
 
 /// 天气城市设置页面
 /// 用于配置天气显示的城市信息
@@ -77,7 +78,7 @@ class _WeatherCitySettingsPageState extends ConsumerState<WeatherCitySettingsPag
 
       _animationController?.forward();
     } catch (e) {
-      debugPrint('加载关注城市失败: $e');
+      LogUtils.d('加载关注城市失败: $e');
     } finally {
       setState(() => _isLoading = false);
     }
@@ -94,7 +95,7 @@ class _WeatherCitySettingsPageState extends ConsumerState<WeatherCitySettingsPag
         _homeWeatherVm.refreshCityWeather();
       }
     } catch (e) {
-      debugPrint('保存关注城市失败: $e');
+      LogUtils.d('保存关注城市失败: $e');
     }
   }
 
@@ -507,4 +508,4 @@ class _WeatherCitySettingsPageState extends ConsumerState<WeatherCitySettingsPag
       ),
     );
   }
-} 
+}

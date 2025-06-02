@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'log/log_utils.dart';
 
 /// 本地存储工具类
 /// 封装SharedPreferences的常用操作
@@ -96,7 +97,7 @@ class StorageUtils {
     try {
       return jsonDecode(jsonString) as Map<String, dynamic>;
     } catch (e) {
-      print('解析JSON失败: $e');
+      LogUtils.d('解析JSON失败: $e');
       return null;
     }
   }
@@ -115,7 +116,7 @@ class StorageUtils {
       final List<dynamic> list = jsonDecode(jsonString);
       return list.cast<Map<String, dynamic>>();
     } catch (e) {
-      print('解析JSON列表失败: $e');
+      LogUtils.d('解析JSON列表失败: $e');
       return null;
     }
   }
@@ -151,16 +152,16 @@ class StorageKeys {
 
   /// 关注的城市列表
   static const String followedCities = 'followed_cities';
-  
+
   /// 当前选中的城市
   static const String currentCity = 'current_city';
-  
+
   /// 用户设置
   static const String userSettings = 'user_settings';
-  
+
   /// 主题模式
   static const String themeMode = 'theme_mode';
-  
+
   /// 天气API Key
   static const String weatherApiKey = 'weather_api_key';
-} 
+}

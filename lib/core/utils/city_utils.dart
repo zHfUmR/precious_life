@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart' show rootBundle;
+import 'log/log_utils.dart';
 
 /// 城市信息实体类
 class CityInfo {
@@ -73,7 +74,7 @@ class CityInfo {
         adminCode: coordParts[2],
       );
     } catch (e) {
-      print('解析城市信息失败: $e');
+      LogUtils.d('解析城市信息失败: $e');
       return null;
     }
   }
@@ -142,7 +143,7 @@ class CityUtils {
 
       return _cities!;
     } catch (e) {
-      print('加载城市数据失败: $e');
+      LogUtils.d('加载城市数据失败: $e');
       return {};
     } finally {
       _isLoading = false;

@@ -7,6 +7,7 @@ import 'package:precious_life/config/text_style.dart';
 import 'package:precious_life/core/network/api/qweather/qweather_api_service.dart';
 import 'package:precious_life/core/utils/storage_utils.dart';
 import 'package:precious_life/features/todo/ui/providers/home_weather_vm.dart';
+import '../../../../../core/utils/log/log_utils.dart';
 
 /// 天气配置设置页面
 /// 用于配置和风天气API Key
@@ -38,15 +39,14 @@ class _WeatherConfigSettingsPageState extends ConsumerState<WeatherConfigSetting
   Future<void> _loadCurrentApiKey() async {
     try {
       setState(() => _isLoading = true);
-      
+
       // 从存储中获取API Key，如果没有则使用默认值
       final savedApiKey = await StorageUtils.instance.getString(StorageKeys.weatherApiKey);
       final currentApiKey = savedApiKey ?? AppConfig.qweatherApiKey;
-      
+
       _apiKeyController.text = currentApiKey;
-      
     } catch (e) {
-      debugPrint('加载API Key失败: $e');
+      LogUtils.d('加载API Key失败: $e');
     } finally {
       setState(() => _isLoading = false);
     }
@@ -70,14 +70,14 @@ class _WeatherConfigSettingsPageState extends ConsumerState<WeatherConfigSetting
       // 使用北京的经纬度进行验证
       const testLocation = '116.4074,39.9042'; // 北京天安门
       final response = await QweatherApiService.getNowWeather(testLocation);
-      
+
       if (response.code == '200') {
         // API Key有效，保存到本地存储
         await StorageUtils.instance.setString(StorageKeys.weatherApiKey, apiKey);
-        
+
         // 确保AppConfig中的API Key保持更新状态
         AppConfig.qweatherApiKey = apiKey;
-        debugPrint('WeatherConfig: API Key验证成功并已保存 - ${apiKey.substring(0, 8)}...');
+        LogUtils.d('WeatherConfig: API Key验证成功并已保存 - ${apiKey.substring(0, 8)}...');
 
         _showSuccessAndClose();
       } else {
@@ -89,7 +89,7 @@ class _WeatherConfigSettingsPageState extends ConsumerState<WeatherConfigSetting
       // 发生异常，恢复原始API Key
       final savedApiKey = await StorageUtils.instance.getString(StorageKeys.weatherApiKey);
       AppConfig.qweatherApiKey = savedApiKey ?? AppConfig.qweatherApiKey;
-      
+
       _showAlert('验证失败', '无法验证API Key，请检查网络连接后重试。\n错误信息: ${e.toString()}');
     } finally {
       setState(() => _isSaving = false);
@@ -183,9 +183,9 @@ class _WeatherConfigSettingsPageState extends ConsumerState<WeatherConfigSetting
                         ],
                       ),
                     ),
-                    
+
                     const SizedBox(height: 24),
-                    
+
                     // API Key输入框
                     Text(
                       'API Key',
@@ -208,9 +208,9 @@ class _WeatherConfigSettingsPageState extends ConsumerState<WeatherConfigSetting
                       ),
                       style: CPTextStyles.s14.build(),
                     ),
-                    
+
                     const SizedBox(height: 24),
-                    
+
                     // 保存按钮
                     SizedBox(
                       width: double.infinity,
@@ -233,9 +233,9 @@ class _WeatherConfigSettingsPageState extends ConsumerState<WeatherConfigSetting
                             : const Text('验证并保存配置'),
                       ),
                     ),
-                    
+
                     const SizedBox(height: 32),
-                    
+
                     // 帮助信息
                     Container(
                       width: double.infinity,

@@ -48,7 +48,7 @@ class _CitySearchPageState extends ConsumerState<CitySearchPage> {
         });
       }
     } catch (e) {
-      LogUtils.d('加载关注城市失败: $e');
+      CPLog.d('加载关注城市失败: $e');
     }
   }
 

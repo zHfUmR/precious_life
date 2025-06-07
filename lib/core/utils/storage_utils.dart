@@ -97,7 +97,7 @@ class StorageUtils {
     try {
       return jsonDecode(jsonString) as Map<String, dynamic>;
     } catch (e) {
-      LogUtils.d('解析JSON失败: $e');
+      CPLog.d('解析JSON失败: $e');
       return null;
     }
   }
@@ -116,7 +116,7 @@ class StorageUtils {
       final List<dynamic> list = jsonDecode(jsonString);
       return list.cast<Map<String, dynamic>>();
     } catch (e) {
-      LogUtils.d('解析JSON列表失败: $e');
+      CPLog.d('解析JSON列表失败: $e');
       return null;
     }
   }

@@ -1,6 +1,7 @@
-import 'package:geolocator/geolocator.dart';
-import 'dart:io';
 import 'dart:async';
+import 'dart:io';
+
+import 'package:geolocator/geolocator.dart';
 import 'log/log_utils.dart';
 
 /// 位置工具类
@@ -98,11 +99,11 @@ class LocationUtils {
       rethrow;
     } on TimeoutException {
       // 处理超时异常，尝试获取最后已知位置
-      LogUtils.d("获取当前位置超时，尝试获取最后已知位置");
+      CPLog.d("获取当前位置超时，尝试获取最后已知位置");
       return await _tryGetLastKnownPositionOrThrow(
           '获取位置信息超时，且无可用的历史位置数据', () => TimeoutException('获取位置信息超时，且无可用的历史位置数据', const Duration(seconds: 30)));
     } catch (e) {
-      LogUtils.d("获取当前位置失败: ${e.toString()}");
+      CPLog.d("获取当前位置失败: ${e.toString()}");
       return await _tryGetLastKnownPositionOrThrow(
           '无法获取位置信息: ${e.toString()}', () => PositionUpdateException('无法获取位置信息: ${e.toString()}'));
     }
@@ -116,7 +117,7 @@ class LocationUtils {
     try {
       return await Geolocator.getLastKnownPosition();
     } catch (e) {
-      LogUtils.d("获取最后已知位置失败: ${e.toString()}");
+      CPLog.d("获取最后已知位置失败: ${e.toString()}");
       return null;
     }
   }
@@ -181,11 +182,11 @@ class LocationUtils {
     try {
       final lastPosition = await getLastKnownPosition();
       if (lastPosition != null) {
-        LogUtils.d("使用最后已知位置作为备选: ${lastPosition.latitude}, ${lastPosition.longitude}");
+        CPLog.d("使用最后已知位置作为备选: ${lastPosition.latitude}, ${lastPosition.longitude}");
         return lastPosition;
       }
     } catch (lastPositionError) {
-      LogUtils.d("获取最后已知位置也失败: ${lastPositionError.toString()}");
+      CPLog.d("获取最后已知位置也失败: ${lastPositionError.toString()}");
     }
 
     // 如果所有方法都失败，抛出指定的异常

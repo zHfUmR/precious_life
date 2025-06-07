@@ -46,7 +46,7 @@ class ApiClient {
         responseHeader: true,
         responseBody: true,
         logPrint: (log) {
-          LogUtils.d('🌐 HTTP: $log');
+          CPLog.d('🌐 HTTP: $log');
         },
       ));
       // dio.httpClientAdapter = IOHttpClientAdapter(createHttpClient: () => localProxyHttpClient());

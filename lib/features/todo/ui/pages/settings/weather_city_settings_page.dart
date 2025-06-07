@@ -78,7 +78,7 @@ class _WeatherCitySettingsPageState extends ConsumerState<WeatherCitySettingsPag
 
       _animationController?.forward();
     } catch (e) {
-      LogUtils.d('加载关注城市失败: $e');
+      CPLog.d('加载关注城市失败: $e');
     } finally {
       setState(() => _isLoading = false);
     }
@@ -95,7 +95,7 @@ class _WeatherCitySettingsPageState extends ConsumerState<WeatherCitySettingsPag
         _homeWeatherVm.refreshCityWeather();
       }
     } catch (e) {
-      LogUtils.d('保存关注城市失败: $e');
+      CPLog.d('保存关注城市失败: $e');
     }
   }
 

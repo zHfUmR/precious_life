@@ -29,7 +29,7 @@ class TiandituApiClient {
   /// 返回处理后的对象
   Future<T> handleResponse<T>(Response response, T Function(Map<String, dynamic> json) fromJson) async {
     final respJson = response.data;
-    LogUtils.d('TiandituApiClient: 处理响应 - status: ${respJson['status']}, msg: ${respJson['msg'] ?? '无'}');
+    CPLog.d('TiandituApiClient: 处理响应 - status: ${respJson['status']}, msg: ${respJson['msg'] ?? '无'}');
 
     // 天地图API中，status为0或'0'表示成功，非0表示失败
     final status = respJson['status'];
@@ -38,7 +38,7 @@ class TiandituApiClient {
     if (!isSuccess) {
       final errorStatus = respJson['status'];
       final errorMessage = respJson['msg'] ?? '未知错误';
-      LogUtils.d('TiandituApiClient: API状态码错误 - status: $errorStatus, msg: $errorMessage');
+      CPLog.d('TiandituApiClient: API状态码错误 - status: $errorStatus, msg: $errorMessage');
 
       // 根据天地图官方文档的错误码提供更友好的错误信息
       String friendlyMessage = errorMessage;
@@ -65,7 +65,7 @@ class TiandituApiClient {
       throw ApiException(errorCode, friendlyMessage);
     }
 
-    LogUtils.d('TiandituApiClient: 响应处理成功，开始解析数据');
+    CPLog.d('TiandituApiClient: 响应处理成功，开始解析数据');
     return fromJson(respJson);
   }
 
@@ -81,8 +81,8 @@ class TiandituApiClient {
     required T Function(Map<String, dynamic> json) fromJson,
   }) async {
     try {
-      LogUtils.d('TiandituApiClient: 发起请求 - path: $path, params: $queryParameters');
-      LogUtils.d(
+      CPLog.d('TiandituApiClient: 发起请求 - path: $path, params: $queryParameters');
+      CPLog.d(
           'TiandituApiClient: API Key: ${AppConfig.tiandituApiKey.isNotEmpty ? '${AppConfig.tiandituApiKey.substring(0, 8)}...' : '空'}');
 
       final response = await dio.get(
@@ -90,13 +90,13 @@ class TiandituApiClient {
         queryParameters: queryParameters,
       );
 
-      LogUtils.d('TiandituApiClient: 请求成功 - statusCode: ${response.statusCode}');
-      LogUtils.d('TiandituApiClient: 响应数据: ${response.data}');
+      CPLog.d('TiandituApiClient: 请求成功 - statusCode: ${response.statusCode}');
+      CPLog.d('TiandituApiClient: 响应数据: ${response.data}');
 
       return handleResponse(response, fromJson);
     } catch (e) {
-      LogUtils.d('TiandituApiClient: 请求失败 - $e');
-      LogUtils.d('TiandituApiClient: 错误类型 - ${e.runtimeType}');
+      CPLog.d('TiandituApiClient: 请求失败 - $e');
+      CPLog.d('TiandituApiClient: 错误类型 - ${e.runtimeType}');
       throw ApiException.from(e);
     }
   }

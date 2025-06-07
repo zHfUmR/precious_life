@@ -84,7 +84,7 @@ class _WeatherDetailPageState extends ConsumerState<WeatherDetailPage> {
       });
     } catch (e) {
       setState(() => _isLoading = false);
-      LogUtils.d('加载城市数据失败: $e');
+      CPLog.d('加载城市数据失败: $e');
     }
   }
 

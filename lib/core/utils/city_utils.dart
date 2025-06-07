@@ -74,7 +74,7 @@ class CityInfo {
         adminCode: coordParts[2],
       );
     } catch (e) {
-      LogUtils.d('解析城市信息失败: $e');
+      CPLog.d('解析城市信息失败: $e');
       return null;
     }
   }
@@ -143,7 +143,7 @@ class CityUtils {
 
       return _cities!;
     } catch (e) {
-      LogUtils.d('加载城市数据失败: $e');
+      CPLog.d('加载城市数据失败: $e');
       return {};
     } finally {
       _isLoading = false;

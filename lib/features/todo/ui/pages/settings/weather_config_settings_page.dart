@@ -46,7 +46,7 @@ class _WeatherConfigSettingsPageState extends ConsumerState<WeatherConfigSetting
 
       _apiKeyController.text = currentApiKey;
     } catch (e) {
-      LogUtils.d('加载API Key失败: $e');
+      CPLog.d('加载API Key失败: $e');
     } finally {
       setState(() => _isLoading = false);
     }
@@ -77,7 +77,7 @@ class _WeatherConfigSettingsPageState extends ConsumerState<WeatherConfigSetting
 
         // 确保AppConfig中的API Key保持更新状态
         AppConfig.qweatherApiKey = apiKey;
-        LogUtils.d('WeatherConfig: API Key验证成功并已保存 - ${apiKey.substring(0, 8)}...');
+        CPLog.d('WeatherConfig: API Key验证成功并已保存 - ${apiKey.substring(0, 8)}...');
 
         _showSuccessAndClose();
       } else {

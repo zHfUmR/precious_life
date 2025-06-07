@@ -25,7 +25,7 @@ class TiandituApiService {
     String? region,
   }) async {
     try {
-      LogUtils.d('TiandituApiService: 开始地理编码 - address: $address, level: $level, region: $region');
+      CPLog.d('TiandituApiService: 开始地理编码 - address: $address, level: $level, region: $region');
 
       // 构建ds参数的JSON字符串
       final dsJson = <String, dynamic>{
@@ -50,10 +50,10 @@ class TiandituApiService {
         fromJson: TiandituGeocodingResponse.fromJson,
       );
 
-      LogUtils.d('TiandituApiService: 地理编码成功 - 结果数量: ${response.result?.length ?? 0}');
+      CPLog.d('TiandituApiService: 地理编码成功 - 结果数量: ${response.result?.length ?? 0}');
       return response;
     } catch (e) {
-      LogUtils.d('TiandituApiService: 地理编码失败 - $e');
+      CPLog.d('TiandituApiService: 地理编码失败 - $e');
       rethrow;
     }
   }
@@ -74,7 +74,7 @@ class TiandituApiService {
     bool extensions = false,
   }) async {
     try {
-      LogUtils.d('TiandituApiService: 开始逆地理编码 - lon: $longitude, lat: $latitude');
+      CPLog.d('TiandituApiService: 开始逆地理编码 - lon: $longitude, lat: $latitude');
 
       // 构建postStr参数的JSON字符串
       final postStrJson = <String, dynamic>{
@@ -102,10 +102,10 @@ class TiandituApiService {
         fromJson: TiandituReverseGeocodingResponse.fromJson,
       );
 
-      LogUtils.d('TiandituApiService: 逆地理编码成功 - 地址: ${response.result?.formattedAddress ?? '未知'}');
+      CPLog.d('TiandituApiService: 逆地理编码成功 - 地址: ${response.result?.formattedAddress ?? '未知'}');
       return response;
     } catch (e) {
-      LogUtils.d('TiandituApiService: 逆地理编码失败 - $e');
+      CPLog.d('TiandituApiService: 逆地理编码失败 - $e');
       rethrow;
     }
   }
@@ -122,7 +122,7 @@ class TiandituApiService {
     String? region,
   }) async {
     try {
-      LogUtils.d('TiandituApiService: 开始批量地理编码 - 地址数量: ${addresses.length}');
+      CPLog.d('TiandituApiService: 开始批量地理编码 - 地址数量: ${addresses.length}');
 
       final results = <TiandituGeocodingResponse>[];
 
@@ -136,10 +136,10 @@ class TiandituApiService {
       final responses = await Future.wait(futures);
       results.addAll(responses);
 
-      LogUtils.d('TiandituApiService: 批量地理编码完成 - 成功数量: ${results.length}');
+      CPLog.d('TiandituApiService: 批量地理编码完成 - 成功数量: ${results.length}');
       return results;
     } catch (e) {
-      LogUtils.d('TiandituApiService: 批量地理编码失败 - $e');
+      CPLog.d('TiandituApiService: 批量地理编码失败 - $e');
       rethrow;
     }
   }
@@ -158,7 +158,7 @@ class TiandituApiService {
     bool extensions = false,
   }) async {
     try {
-      LogUtils.d('TiandituApiService: 开始批量逆地理编码 - 坐标数量: ${coordinates.length}');
+      CPLog.d('TiandituApiService: 开始批量逆地理编码 - 坐标数量: ${coordinates.length}');
 
       final results = <TiandituReverseGeocodingResponse>[];
 
@@ -179,10 +179,10 @@ class TiandituApiService {
       final responses = await Future.wait(futures);
       results.addAll(responses);
 
-      LogUtils.d('TiandituApiService: 批量逆地理编码完成 - 成功数量: ${results.length}');
+      CPLog.d('TiandituApiService: 批量逆地理编码完成 - 成功数量: ${results.length}');
       return results;
     } catch (e) {
-      LogUtils.d('TiandituApiService: 批量逆地理编码失败 - $e');
+      CPLog.d('TiandituApiService: 批量逆地理编码失败 - $e');
       rethrow;
     }
   }
@@ -208,7 +208,7 @@ class TiandituApiService {
       }
       return null;
     } catch (e) {
-      LogUtils.d('TiandituApiService: 获取当前位置地址失败 - $e');
+      CPLog.d('TiandituApiService: 获取当前位置地址失败 - $e');
       return null;
     }
   }
@@ -237,7 +237,7 @@ class TiandituApiService {
       }
       return null;
     } catch (e) {
-      LogUtils.d('TiandituApiService: 搜索地址坐标失败 - $e');
+      CPLog.d('TiandituApiService: 搜索地址坐标失败 - $e');
       return null;
     }
   }

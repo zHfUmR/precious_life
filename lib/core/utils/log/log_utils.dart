@@ -19,22 +19,22 @@ enum LogLevel {
 /// - 支持颜色标识（Debug模式下）
 /// - 可配置是否显示时间戳
 /// - 可配置最大单行输出长度
-/// - 支持直接静态调用：LogUtils.d(), LogUtils.i() 等
-class LogUtils {
+/// - 支持直接静态调用：CPLog.d(), CPLog.i() 等
+class CPLog {
   // 私有构造函数
-  LogUtils._();
+  CPLog._();
 
   // 单例实例
-  static LogUtils? _instance;
+  static CPLog? _instance;
 
   /// 获取单例实例
-  static LogUtils get instance {
-    _instance ??= LogUtils._();
+  static CPLog get instance {
+    _instance ??= CPLog._();
     return _instance!;
   }
 
   /// 便捷访问方法
-  static LogUtils get I => instance;
+  static CPLog get I => instance;
 
   // 配置参数
   bool _enableLog = kDebugMode; // 默认只在Debug模式下启用
@@ -97,7 +97,7 @@ class LogUtils {
         divider += '=';
       }
     }
-    LogUtils.i(divider);
+    CPLog.i(divider);
   }
 
   /// JSON格式化输出
@@ -105,9 +105,9 @@ class LogUtils {
     try {
       // 简单的JSON格式化
       String formatted = instance._formatJson(data, 0);
-      LogUtils.d(formatted, tag ?? 'JSON');
+      CPLog.d(formatted, tag ?? 'JSON');
     } catch (error) {
-      LogUtils.e('JSON格式化失败: $error', tag);
+      CPLog.e('JSON格式化失败: $error', tag);
     }
   }
 

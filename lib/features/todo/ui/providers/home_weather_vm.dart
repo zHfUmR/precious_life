@@ -1,7 +1,7 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:precious_life/config/app_config.dart';
 import 'package:precious_life/core/network/api/qweather/qweather_api_service.dart';
-import 'package:precious_life/core/network/api/tianditu/tianditu_api_service.dart';
+import 'package:precious_life/core/network/api/qweather/qweather_api_model.dart';
 import 'package:precious_life/core/utils/location_utils.dart';
 import 'package:precious_life/core/utils/storage_utils.dart';
 import 'package:precious_life/core/utils/weather_utils.dart';
@@ -89,23 +89,24 @@ class HomeWeatherVm extends _$HomeWeatherVm {
     final locationStr = "${AppConfig.currentLongitude},${AppConfig.currentLatitude}";
     try {
       final futures = await Future.wait([
-        TiandituApiService.instance.reverseGeocoding(
-          longitude: AppConfig.currentLongitude,
-          latitude: AppConfig.currentLatitude,
-        ),
+        // TiandituApiService.instance.reverseGeocoding(
+        //   longitude: AppConfig.currentLongitude,
+        //   latitude: AppConfig.currentLatitude,
+        // ),
         QweatherApiService.lookupCity(locationStr),
         QweatherApiService.getNowWeather(locationStr),
         QweatherApiService.getMinutelyRain(locationStr),
       ]);
-      final locationData = futures[0] as dynamic;
-      final weatherData = futures[1] as dynamic;
-      final rainData = futures[2] as dynamic;
+      final locationData = futures[0] as QweatherCityResponse;
+      final weatherData = futures[1] as QweatherNowResponse;
+      final rainData = futures[2] as QweatherMinutelyResponse;
       final newState = state.copyWith(
         weatherLocationState: WeatherLocationState(
             loadingStatus: LoadingStatus.success,
             currentLatitude: AppConfig.currentLatitude,
             currentLongitude: AppConfig.currentLongitude,
-            currentCity: "${locationData.result?.formattedAddress ?? '未知位置'}",
+            currentCity:
+                locationData.location?.isNotEmpty == true ? (locationData.location!.first.name ?? '未知位置') : '未知位置',
             currentWeather: weatherData.now,
             currentMinutelyRain: rainData),
       );
@@ -114,6 +115,7 @@ class HomeWeatherVm extends _$HomeWeatherVm {
       state = state.copyWith(
           weatherLocationState:
               WeatherLocationState(loadingStatus: LoadingStatus.failure, errorMessage: '天气数据获取失败: ${e.toString()}'));
+      rethrow;
     }
   }
 

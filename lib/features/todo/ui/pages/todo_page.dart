@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:precious_life/core/utils/screen_utils.dart';
 import 'package:precious_life/features/todo/ui/widgets/dashboard_module.dart';
+import 'package:precious_life/features/todo/ui/widgets/weather_card.dart';
 
 /// 待办事项页面
 class TodoPage extends ConsumerStatefulWidget {
@@ -22,6 +23,7 @@ class _TodoPageState extends ConsumerState<TodoPage> with AutomaticKeepAliveClie
     return Padding(
       padding: EdgeInsets.all(ScreenUtils.widgetEdgeDistance),
       child: const Column(children: [
+        WeatherCard(),
         DashboardModule(),
       ]),
     );

@@ -48,6 +48,16 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+# Android NDK related
+/android/app/.cxx/
+/android/app/build/
+/android/.gradle/
+/android/local.properties
+/android/captures/
+/android/gradlew
+/android/gradlew.bat
+/android/gradle/wrapper/gradle-wrapper.jar
+
 # Generated Dart files
 *.freezed.dart
 *.g.dart

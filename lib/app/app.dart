@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:precious_life/app/routes/app_router.dart';
 import 'package:precious_life/core/utils/screen_utils.dart';
+import 'package:precious_life/config/theme/app_theme.dart';
+import 'package:precious_life/config/theme/theme_provider.dart';
 
 /// 应用根组件
 /// 负责设置应用的主题、路由等基础配置
@@ -50,17 +52,23 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
+    final currentTheme = ref.watch(themeNotifierProvider);
+
     // 初始化屏幕工具类
     ScreenUtils.initialize(context);
+
     return MediaQuery(
-        // 设置文字大小不随系统设置变化
-        data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
-        child: MaterialApp.router(
-          title: '惜命 (Precious Life)',
-          // 使用GoRouter进行路由管理
-          routerConfig: router,
-          debugShowCheckedModeBanner: false,
-        ),
-      );
+      // 设置文字大小不随系统设置变化
+      data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+      child: MaterialApp.router(
+        title: '惜命 (Precious Life)',
+        // 使用GoRouter进行路由管理
+        routerConfig: router,
+        debugShowCheckedModeBanner: false,
+
+        // 🎨 使用蕾姆蓝/拉姆粉主题
+        theme: AppTheme.getTheme(currentTheme),
+      ),
+    );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:precious_life/shared/widgets/theme_switch_button.dart';
 
 class WeatherCard extends ConsumerStatefulWidget {
   const WeatherCard({super.key});
@@ -167,6 +168,18 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
                     padding: EdgeInsets.zero,
                     color: Colors.blue,
                   ),
+                ),
+                const SizedBox(width: 6),
+
+                // 主题切换按钮
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: Colors.purple.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const ThemeSwitchButton(),
                 ),
               ],
             ),

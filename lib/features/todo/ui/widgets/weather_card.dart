@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:precious_life/shared/widgets/theme_switch_button.dart';
+import 'package:go_router/go_router.dart';
+import 'package:precious_life/app/routes/route_constants.dart';
 import 'package:precious_life/features/todo/ui/providers/weather_card_vm.dart';
 import 'package:precious_life/shared/widgets/loading_status_widget.dart';
 import 'package:precious_life/core/utils/weather_utils.dart';
@@ -14,51 +15,71 @@ class WeatherCard extends ConsumerStatefulWidget {
 }
 
 class _WeatherCardState extends ConsumerState<WeatherCard> {
+  late WeatherCardVm _weatherCardVm;
   bool _isExpanded = false;
 
   @override
   void initState() {
     super.initState();
-    // 页面初始化时加载天气数据
+    _weatherCardVm = ref.read(weatherCardVmProvider.notifier);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(weatherCardVmProvider.notifier).init();
+      _weatherCardVm.init();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final weatherState = ref.watch(weatherCardVmProvider);
-
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // 定位信息行
-            _buildLocationRow(weatherState),
-            const SizedBox(height: 8),
-
-            // 天气信息行
-            _buildWeatherInfoRow(weatherState),
-            const SizedBox(height: 8),
-
-            // 展开/收起按钮
-            _buildExpandButton(),
-
-            // 展开的关注城市列表
-            if (_isExpanded)
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: _buildFollowedCitiesList(weatherState),
-              ),
-          ],
+      child: Container(
+        width: double.infinity,
+        constraints: const BoxConstraints(
+          minHeight: 80,
         ),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+        child: LoadingStatusWidget(
+          status: weatherState.weatherConfigState.loadingStatus,
+          onRetry: () => GoRouter.of(context).push(AppRoutes.weatherConfig),
+          errorMessage: weatherState.weatherConfigState.errorMessage,
+          child: _buildWeatherContent(weatherState),
+        ),
+      ),
+    );
+  }
+
+  /// 构建天气内容
+  Widget _buildWeatherContent(weatherState) {
+    return LoadingStatusWidget(
+      status: weatherState.weatherLocationState.loadingStatus,
+      loadingMessage: '获取位置信息 & 查询天气中...',
+      onRetry: () => _weatherCardVm.loadLocationWeather(),
+      errorMessage: weatherState.weatherLocationState.errorMessage,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // 定位信息行
+          _buildLocationRow(weatherState),
+          const SizedBox(height: 4),
+
+          // 天气信息行
+          _buildWeatherInfoRow(weatherState),
+          const SizedBox(height: 4),
+
+          // 展开/收起按钮
+          _buildExpandButton(),
+
+          // 展开的关注城市列表
+          if (_isExpanded)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: _buildFollowedCitiesList(weatherState),
+            ),
+        ],
       ),
     );
   }
@@ -66,39 +87,18 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
   /// 构建定位信息行
   Widget _buildLocationRow(weatherState) {
     final locationState = weatherState.weatherLocationState;
-    String cityName = '获取位置中...';
-    Color iconColor = Colors.grey;
-
-    // 根据加载状态显示不同的城市信息
-    switch (locationState.loadingStatus) {
-      case LoadingStatus.success:
-        cityName = locationState.currentCity ?? '未知位置';
-        iconColor = Colors.blue;
-        break;
-      case LoadingStatus.failure:
-        cityName = locationState.errorMessage ?? '位置获取失败';
-        iconColor = Colors.red;
-        break;
-      case LoadingStatus.loading:
-        cityName = '正在获取位置...';
-        iconColor = Colors.orange;
-        break;
-      default:
-        break;
-    }
-
     return Row(
       children: [
-        Icon(
+        const Icon(
           Icons.location_on,
-          color: iconColor,
+          color: Colors.blue,
           size: 18,
         ),
         const SizedBox(width: 6),
         Expanded(
           child: Text(
-            cityName,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            locationState.currentAddress ?? '获取位置中...',
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
           ),
@@ -136,7 +136,7 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
         // 温度
         Text(
           '${weather?.temp ?? '--'}°',
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+          style: Theme.of(context).textTheme.displaySmall?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: Colors.blue.shade700,
               ),
@@ -218,18 +218,6 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
                     padding: EdgeInsets.zero,
                     color: Colors.blue,
                   ),
-                ),
-                const SizedBox(width: 6),
-
-                // 主题切换按钮
-                Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: Colors.purple.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const ThemeSwitchButton(),
                 ),
               ],
             ),
@@ -616,7 +604,7 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
 
   /// 刷新天气数据
   void _refreshWeather() {
-    ref.read(weatherCardVmProvider.notifier).weatherLocation();
+    ref.read(weatherCardVmProvider.notifier).loadLocationWeather();
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('正在更新天气信息...')),
     );
@@ -624,7 +612,7 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
 
   /// 刷新关注城市数据
   void _refreshFollowedCities() {
-    ref.read(weatherCardVmProvider.notifier).refreshCityWeather();
+    ref.read(weatherCardVmProvider.notifier).loadFollowedWeather();
   }
 
   /// 显示天气告警信息

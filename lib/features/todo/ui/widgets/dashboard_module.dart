@@ -93,7 +93,7 @@ class _DashboardModuleState extends ConsumerState<DashboardModule> with SingleTi
                   const Expanded(child: CountdownModule()),
                 ]),
               ),
-              const Expanded(child: WeatherModule()),
+              // const Expanded(child: WeatherModule()),
             ])));
   }
 

@@ -7,6 +7,9 @@ import 'log/log_utils.dart';
 /// 位置工具类
 /// 提供获取设备当前位置的功能
 class LocationUtils {
+  /// 权限请求状态锁，防止并发请求权限
+  static Completer<LocationPermission>? _permissionCompleter;
+  
   /// 获取当前位置
   ///
   /// 返回包含经纬度的Position对象
@@ -19,34 +22,18 @@ class LocationUtils {
       throw const LocationServiceDisabledException();
     }
 
-    // 检查当前权限状态
-    LocationPermission permission = await Geolocator.checkPermission();
-
-    // 处理权限被拒绝的情况
-    if (permission == LocationPermission.denied) {
-      // 请求权限 - 在iOS上，这会触发系统权限弹窗
-      // 但需要确保Info.plist中配置了正确的权限描述
-      try {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          // 权限仍然被拒绝
-          throw const PermissionDeniedException('位置权限被拒绝');
-        }
-      } catch (e) {
-        // iOS平台可能会抛出PermissionDefinitionsNotFoundException
-        // 如果Info.plist中缺少必要的权限描述
-        if (Platform.isIOS && e.toString().contains('PermissionDefinitionsNotFoundException')) {
-          throw const PermissionDeniedException('iOS权限配置错误：请在Info.plist中添加NSLocationWhenInUseUsageDescription');
-        }
-        // 其他权限请求错误
-        throw PermissionDeniedException('权限请求失败: ${e.toString()}');
-      }
-    }
+    // 使用安全的权限检查和请求机制
+    LocationPermission permission = await _checkAndRequestPermissionSafely();
 
     // 处理权限被永久拒绝的情况
     if (permission == LocationPermission.deniedForever) {
       // 权限被永久拒绝，需要用户手动到设置中开启
       throw const PermissionDeniedException('位置权限被永久拒绝，请在设置中手动启用位置权限');
+    }
+
+    // 如果权限仍然被拒绝
+    if (permission == LocationPermission.denied) {
+      throw const PermissionDeniedException('位置权限被拒绝');
     }
 
     // 配置位置设置
@@ -59,7 +46,7 @@ class LocationUtils {
         distanceFilter: 0,
         forceLocationManager: false, // 使用FusedLocationProvider（推荐）
         intervalDuration: const Duration(seconds: 10),
-        timeLimit: const Duration(seconds: 30),
+        timeLimit: const Duration(seconds: 60),
       );
     } else if (Platform.isIOS) {
       // iOS平台特定配置
@@ -89,7 +76,7 @@ class LocationUtils {
       if (position.latitude == 0.0 && position.longitude == 0.0) {
         throw const PositionUpdateException('获取到无效的位置数据');
       }
-
+      CPLog.d('LocationUtils: 获取当前位置: ${position.latitude},${position.longitude}');
       return position;
     } on LocationServiceDisabledException {
       // 重新抛出位置服务异常
@@ -107,6 +94,69 @@ class LocationUtils {
       return await _tryGetLastKnownPositionOrThrow(
           '无法获取位置信息: ${e.toString()}', () => PositionUpdateException('无法获取位置信息: ${e.toString()}'));
     }
+  }
+
+  /// 安全的权限检查和请求机制，防止并发请求
+  ///
+  /// 返回最终的权限状态
+  static Future<LocationPermission> _checkAndRequestPermissionSafely() async {
+    // 检查当前权限状态
+    LocationPermission permission = await Geolocator.checkPermission();
+
+    // 如果权限已经获得，直接返回
+    if (permission == LocationPermission.always || permission == LocationPermission.whileInUse) {
+      return permission;
+    }
+
+    // 如果权限被永久拒绝，直接返回
+    if (permission == LocationPermission.deniedForever) {
+      return permission;
+    }
+
+    // 如果权限被拒绝，需要请求权限
+    if (permission == LocationPermission.denied) {
+      // 如果已经有权限请求在进行中，等待该请求完成
+      if (_permissionCompleter != null && !_permissionCompleter!.isCompleted) {
+        CPLog.d("LocationUtils: 等待正在进行的权限请求完成");
+        return await _permissionCompleter!.future;
+      }
+
+      // 创建新的权限请求
+      _permissionCompleter = Completer<LocationPermission>();
+
+      try {
+        CPLog.d("LocationUtils: 开始请求位置权限");
+        permission = await Geolocator.requestPermission();
+        CPLog.d("LocationUtils: 权限请求结果: $permission");
+        
+        // 完成权限请求
+        if (!_permissionCompleter!.isCompleted) {
+          _permissionCompleter!.complete(permission);
+        }
+      } catch (e) {
+        CPLog.d("LocationUtils: 权限请求失败: ${e.toString()}");
+        
+        // 处理特定的权限请求错误
+        if (Platform.isIOS && e.toString().contains('PermissionDefinitionsNotFoundException')) {
+          final error = const PermissionDeniedException('iOS权限配置错误：请在Info.plist中添加NSLocationWhenInUseUsageDescription');
+          if (!_permissionCompleter!.isCompleted) {
+            _permissionCompleter!.completeError(error);
+          }
+          throw error;
+        }
+        
+        final error = PermissionDeniedException('权限请求失败: ${e.toString()}');
+        if (!_permissionCompleter!.isCompleted) {
+          _permissionCompleter!.completeError(error);
+        }
+        throw error;
+      } finally {
+        // 清理权限请求状态
+        _permissionCompleter = null;
+      }
+    }
+
+    return permission;
   }
 
   /// 获取最后已知位置
@@ -133,22 +183,8 @@ class LocationUtils {
       throw const LocationServiceDisabledException();
     }
 
-    // 检查当前权限
-    LocationPermission permission = await Geolocator.checkPermission();
-
-    // 如果权限被拒绝，尝试请求
-    if (permission == LocationPermission.denied) {
-      try {
-        permission = await Geolocator.requestPermission();
-      } catch (e) {
-        if (Platform.isIOS && e.toString().contains('PermissionDefinitionsNotFoundException')) {
-          throw const PermissionDeniedException('iOS权限配置错误：请在Info.plist中添加必要的位置权限描述');
-        }
-        throw PermissionDeniedException('权限请求失败: ${e.toString()}');
-      }
-    }
-
-    return permission;
+    // 使用安全的权限检查和请求机制
+    return await _checkAndRequestPermissionSafely();
   }
 
   /// 打开应用设置页面

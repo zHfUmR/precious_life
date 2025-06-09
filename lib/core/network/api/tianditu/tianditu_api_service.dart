@@ -1,5 +1,7 @@
+import 'package:precious_life/config/app_config.dart';
 import 'package:precious_life/core/network/api/tianditu/tianditu_api_client.dart';
 import 'package:precious_life/core/network/api/tianditu/tianditu_api_model.dart';
+import 'package:precious_life/core/utils/storage_utils.dart';
 import '../../../utils/log/log_utils.dart';
 
 /// 天地图API服务类
@@ -12,6 +14,26 @@ class TiandituApiService {
 
   /// API客户端
   final TiandituApiClient _apiClient = TiandituApiClient.instance;
+
+  /// 检查天地图Key是否配置
+  static Future<bool> isKeyConfigured() async {
+     try {
+      // 1. 先检查内存中是否配置（AppConfig）
+      if (AppConfig.tiandituApiKey.isNotEmpty) return true;
+      
+      // 2. 再检查存储中是否配置
+      final savedApiKey = await StorageUtils.instance.getString(StorageKeys.tiandituApiKey);
+      if (savedApiKey != null && savedApiKey.isNotEmpty) {
+        // 如果存储中有API Key，更新内存中的配置
+        AppConfig.tiandituApiKey = savedApiKey;
+        return true;
+      }
+      // 3. 都没有配置
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
 
   /// 地理编码 - 将地址转换为坐标
   ///
@@ -27,22 +49,32 @@ class TiandituApiService {
     try {
       CPLog.d('TiandituApiService: 开始地理编码 - address: $address, level: $level, region: $region');
 
-      // 构建ds参数的JSON字符串
-      final dsJson = <String, dynamic>{
+      // 构建ds参数 - 按照天地图官方文档格式
+      final dsParams = <String, dynamic>{
         'keyWord': address,
       };
 
-      // 添加可选参数到JSON中
+      // 添加可选参数
       if (level != null) {
-        dsJson['level'] = level;
+        dsParams['level'] = level;
       }
       if (region != null && region.isNotEmpty) {
-        dsJson['region'] = region;
+        dsParams['region'] = region;
       }
 
+      // 手动构建符合天地图要求的JSON格式字符串（去掉引号和空格）
+      final dsBuffer = StringBuffer('{');
+      dsParams.forEach((key, value) {
+        if (dsBuffer.length > 1) dsBuffer.write(',');
+        dsBuffer.write('$key:$value');
+      });
+      dsBuffer.write('}');
+
       final queryParameters = <String, dynamic>{
-        'ds': dsJson.toString().replaceAll('"', '').replaceAll(' ', ''), // 去掉双引号和空格
+        'ds': dsBuffer.toString(),
       };
+
+      CPLog.d('TiandituApiService: ds参数: ${dsBuffer.toString()}');
 
       final response = await _apiClient.get<TiandituGeocodingResponse>(
         path: '/geocoder',
@@ -76,25 +108,39 @@ class TiandituApiService {
     try {
       CPLog.d('TiandituApiService: 开始逆地理编码 - lon: $longitude, lat: $latitude');
 
-      // 构建postStr参数的JSON字符串
-      final postStrJson = <String, dynamic>{
+      // 构建postStr参数 - 按照天地图官方文档格式
+      final postStrParams = <String, dynamic>{
         'lon': longitude,
         'lat': latitude,
         'ver': ver,
       };
 
-      // 添加可选参数到JSON中
+      // 添加可选参数
       if (radius != 1000) {
-        postStrJson['radius'] = radius;
+        postStrParams['radius'] = radius;
       }
       if (extensions) {
-        postStrJson['extensions'] = 'all';
+        postStrParams['extensions'] = 'all';
       }
 
+      // 手动构建符合天地图要求的JSON格式字符串（使用单引号）
+      final postStrBuffer = StringBuffer('{');
+      postStrParams.forEach((key, value) {
+        if (postStrBuffer.length > 1) postStrBuffer.write(',');
+        if (value is String) {
+          postStrBuffer.write("'$key':'$value'");
+        } else {
+          postStrBuffer.write("'$key':$value");
+        }
+      });
+      postStrBuffer.write('}');
+
       final queryParameters = <String, dynamic>{
-        'postStr': postStrJson.toString().replaceAll('"', '\''), // 使用单引号
-        'type': 'geocode', // 注意这里是geocode，不是geocoding
+        'postStr': postStrBuffer.toString(),
+        'type': 'geocode',
       };
+
+      CPLog.d('TiandituApiService: postStr参数: ${postStrBuffer.toString()}');
 
       final response = await _apiClient.get<TiandituReverseGeocodingResponse>(
         path: '/geocoder',

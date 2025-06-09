@@ -164,4 +164,7 @@ class StorageKeys {
 
   /// 天气API Key
   static const String weatherApiKey = 'weather_api_key';
+
+  /// 天地图API Key
+  static const String tiandituApiKey = 'tianditu_api_key';
 }

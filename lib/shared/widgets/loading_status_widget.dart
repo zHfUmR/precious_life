@@ -8,7 +8,7 @@ enum LoadingStatus {
   loading, // 加载中
   failure, // 加载失败
   success, // 加载完成
-  noData,  // 无数据
+  noData, // 无数据
 }
 
 /// 根据不同加载状态显示对应视图的组件
@@ -18,6 +18,9 @@ class LoadingStatusWidget extends StatelessWidget {
 
   /// 加载成功时显示的内容
   final Widget child;
+
+  /// 加载中时的提示文案  
+  final String? loadingMessage;
 
   /// 加载失败时的错误信息
   final String? errorMessage;
@@ -30,6 +33,7 @@ class LoadingStatusWidget extends StatelessWidget {
     Key? key,
     required this.status,
     required this.child,
+    this.loadingMessage,
     this.errorMessage,
     this.onRetry,
   }) : super(key: key);
@@ -58,17 +62,28 @@ class LoadingStatusWidget extends StatelessWidget {
         );
       case LoadingStatus.loading:
         return _buildScrollableCenter(
-          child: const SizedBox(
-            width: 20,
-            height: 20,
-            child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(CPColors.leiMuBlue),
+            child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(CPColors.leiMuBlue),
+              ),
             ),
-          ),
-        );
+            const SizedBox(height: 16),
+            Text(
+              loadingMessage ?? '加载中...',
+              style: CPTextStyles.s12.c(CPColors.lightGrey),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ));
       case LoadingStatus.failure:
         return _buildScrollableCenter(
           child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: onRetry,
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -113,16 +128,23 @@ class LoadingStatusWidget extends StatelessWidget {
   }
 
   /// 构建可滚动的居中容器
-  Widget _buildScrollableCenter({required Widget child}) => 
-    LayoutBuilder(
-      builder: (context, constraints) => SingleChildScrollView(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            minHeight: constraints.maxHeight,
-            minWidth: constraints.maxWidth,
-          ),
-          child: Center(child: child),
-        ),
-      ),
-    );
+  /// 当约束宽高为无限大或者0时，设置默认最小宽高
+  Widget _buildScrollableCenter({required Widget child}) => LayoutBuilder(
+        builder: (context, constraints) {
+          // 处理无限大或0值的约束
+          final double minHeight =
+              (constraints.maxHeight.isInfinite || constraints.maxHeight <= 0) ? 50 : constraints.maxHeight;
+          final double minWidth =
+              (constraints.maxWidth.isInfinite || constraints.maxWidth <= 0) ? 100 : constraints.maxWidth;
+          return SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: minHeight,
+                minWidth: minWidth,
+              ),
+              child: Center(child: child),
+            ),
+          );
+        },
+      );
 }

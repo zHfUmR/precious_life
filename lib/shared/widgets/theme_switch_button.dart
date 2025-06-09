@@ -27,13 +27,16 @@ class ThemeSwitchButton extends ConsumerWidget {
 
   /// 构建图标按钮样式
   Widget _buildIconButton(BuildContext context, AppThemeMode currentTheme, ThemeNotifier themeNotifier) {
-    return IconButton(
-      onPressed: () => themeNotifier.toggleTheme(),
+    return GestureDetector(
+      onTap: () => themeNotifier.toggleTheme(),
       onLongPress: () => _showThemeSelector(context, themeNotifier),
-      icon: Icon(_getThemeIcon(currentTheme)),
-      tooltip: '点击切换主题，长按选择主题模式',
-      iconSize: 18,
-      padding: EdgeInsets.zero,
+      child: Tooltip(
+        message: '点击切换主题，长按选择主题模式',
+        child: Icon(
+          _getThemeIcon(currentTheme),
+          size: 18,
+        ),
+      ),
     );
   }
 

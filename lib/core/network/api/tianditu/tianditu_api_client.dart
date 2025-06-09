@@ -97,6 +97,18 @@ class TiandituApiClient {
     } catch (e) {
       CPLog.d('TiandituApiClient: 请求失败 - $e');
       CPLog.d('TiandituApiClient: 错误类型 - ${e.runtimeType}');
+      
+      // 特殊处理403错误，提供更有用的错误信息
+      if (e is DioException && e.response?.statusCode == 403) {
+        CPLog.d('TiandituApiClient: 403错误详情 - 可能原因:');
+        CPLog.d('  1. API Key无效或已过期');
+        CPLog.d('  2. API Key权限不足');
+        CPLog.d('  3. 请求参数格式错误');
+        CPLog.d('  4. 请求频率超限');
+        CPLog.d('TiandituApiClient: 请求URL: ${e.requestOptions.uri}');
+        CPLog.d('TiandituApiClient: 响应内容: ${e.response?.data}');
+      }
+      
       throw ApiException.from(e);
     }
   }

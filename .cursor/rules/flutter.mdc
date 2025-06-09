@@ -7,5 +7,5 @@ alwaysApply: false
 
 - 使用@freezed定义实体类，不要使用@JsonKey注解定义属性。
 - 使用 Riverpod 进行状态管理。
-- 定义 Widget 默认继承 ConsumerStatefulWidget 类
-。
+- 定义 Widget 默认继承 ConsumerStatefulWidget 类。
+- 不要擅自执行命令：dart pub run build_runner build

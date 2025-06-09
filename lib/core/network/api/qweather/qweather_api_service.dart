@@ -1,9 +1,46 @@
+import 'package:precious_life/config/app_config.dart';
 import 'package:precious_life/core/network/api/qweather/qweather_api_client.dart';
 import 'package:precious_life/core/network/api/qweather/qweather_api_model.dart';
+import 'package:precious_life/core/utils/log/log_utils.dart';
+import 'package:precious_life/core/utils/storage_utils.dart';
 
 /// 和风天气API服务类
 /// 提供一系列发起请求的静态方法
 class QweatherApiService {
+
+  /// 检查天气Key是否设置
+  static Future<bool> isKeyConfigured() async {
+    try {
+      // 1. 先检查内存中是否配置（AppConfig）
+      if (AppConfig.qweatherApiKey.isNotEmpty) return true;
+      
+      // 2. 再检查存储中是否配置
+      final savedApiKey = await StorageUtils.instance.getString(StorageKeys.weatherApiKey);
+      if (savedApiKey != null && savedApiKey.isNotEmpty) {
+        // 如果存储中有API Key，更新内存中的配置
+        AppConfig.qweatherApiKey = savedApiKey;
+        return true;
+      }
+      // 3. 都没有配置
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// 检查天气Key是否有效，直接用key去请求 北京天安门的经纬度：116.4074,39.9042
+  /// 返回true表示有效，false表示无效
+  static Future<bool> isKeyValid() async {
+    try {
+      final response = await getNowWeather('116.4074,39.9042');
+      CPLog.d('QweatherApiService: 检查天气Key是否有效 - response: ${response.code}');
+      if (response.code == '200') return true;
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
   /// 城市信息查询接口
   ///
   /// 通过城市名称或经纬度坐标查询城市信息

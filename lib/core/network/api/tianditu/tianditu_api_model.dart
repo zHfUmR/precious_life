@@ -3,6 +3,13 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'tianditu_api_model.freezed.dart';
 part 'tianditu_api_model.g.dart';
 
+/// 解析状态码字段，支持字符串和数字类型
+int _parseStatus(dynamic value) {
+  if (value is int) return value;
+  if (value is String) return int.tryParse(value) ?? 0;
+  return 0;
+}
+
 /// 天地图逆地理编码响应模型
 @freezed
 class TiandituReverseGeocodingResponse with _$TiandituReverseGeocodingResponse {
@@ -10,7 +17,7 @@ class TiandituReverseGeocodingResponse with _$TiandituReverseGeocodingResponse {
 
   const factory TiandituReverseGeocodingResponse({
     /// 状态码，0表示成功，非0表示失败
-    required int status,
+    @JsonKey(fromJson: _parseStatus) required int status,
 
     /// 状态信息
     required String msg,
@@ -37,7 +44,7 @@ class ReverseGeocodingResult with _$ReverseGeocodingResult {
     LocationInfo? location,
 
     /// 地址组件
-    @JsonKey(name: 'addressComponent') ReverseAddressComponent? addressComponent,
+    ReverseAddressComponent? addressComponent,
 
     /// 附近POI列表
     List<NearbyPoi>? pois,
@@ -51,10 +58,13 @@ class ReverseGeocodingResult with _$ReverseGeocodingResult {
 class ReverseAddressComponent with _$ReverseAddressComponent {
   const factory ReverseAddressComponent({
     /// 国家
-    @JsonKey(name: 'nation') String? country,
+    String? country,
+
+    /// 国家名称
+    String? nation,
 
     /// 国家代码
-    @JsonKey(name: 'nation_code') String? countryCode,
+    String? countryCode,
 
     /// 省份
     String? province,
@@ -152,7 +162,7 @@ class TiandituGeocodingResponse with _$TiandituGeocodingResponse {
 
   const factory TiandituGeocodingResponse({
     /// 状态码，0表示成功，非0表示失败
-    required int status,
+    @JsonKey(fromJson: _parseStatus) required int status,
 
     /// 状态信息
     required String msg,

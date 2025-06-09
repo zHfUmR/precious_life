@@ -153,6 +153,7 @@ class AppTheme {
       fontWeight: FontWeight.w400,
       letterSpacing: 0.4,
     ),
+    // 更小的字体
     labelLarge: TextStyle(
       fontSize: 14,
       fontWeight: FontWeight.w500,
@@ -164,7 +165,7 @@ class AppTheme {
       letterSpacing: 0.5,
     ),
     labelSmall: TextStyle(
-      fontSize: 11,
+      fontSize: 10,
       fontWeight: FontWeight.w500,
       letterSpacing: 0.5,
     ),

@@ -49,7 +49,7 @@ class ApiClient {
           CPLog.d('🌐 HTTP: $log');
         },
       ));
-      // dio.httpClientAdapter = IOHttpClientAdapter(createHttpClient: () => localProxyHttpClient());
+      dio.httpClientAdapter = IOHttpClientAdapter(createHttpClient: () => localProxyHttpClient());
     }
     return dio;
   }

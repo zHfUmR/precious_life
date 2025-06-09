@@ -68,7 +68,7 @@ class WeatherCardVm extends _$WeatherCardVm {
   }
 
   /// 获取定位天气信息，逻辑:
-  /// 
+  ///
   /// 1. 获取定位信息，先获取内存中的经纬度，未获取到则获取位置，未获取到位置，显示错误信息
   /// 2. 能获取到的话，检查是否配置天地图Key，有通过逆编码接口获得详细定位，否则调用天气逆编码接口
   /// 3. 拉取天气信息、降雨、预警信息
@@ -77,7 +77,7 @@ class WeatherCardVm extends _$WeatherCardVm {
     if (AppConfig.currentLatitude == 0 && AppConfig.currentLongitude == 0) {
       Position location;
       try {
-        location = await LocationUtils.getCurrentPosition();
+        location = await CPLocation.getCurrentPosition();
         // 更新AppConfig中的经纬度值
         AppConfig.currentLatitude = location.latitude;
         AppConfig.currentLongitude = location.longitude;
@@ -88,32 +88,34 @@ class WeatherCardVm extends _$WeatherCardVm {
         return;
       }
     }
-    
+
     // 构建经纬度字符串，格式为：经度,纬度
     final locationStr = "${AppConfig.currentLongitude},${AppConfig.currentLatitude}";
-    
+
     // 判断天地图Key是否配置，有则调用逆编码接口，否则调用天气逆编码接口
-    String? currentAddress;
-    final isTiandituKeyConfigured = await TiandituApiService.isKeyConfigured();
-    if (isTiandituKeyConfigured) {
-      try {
-        final tiandituResponse = await TiandituApiService.instance.reverseGeocoding(
-          longitude: AppConfig.currentLongitude,
-          latitude: AppConfig.currentLatitude,
-        );
-        if (tiandituResponse.status == 0) {
-          final location = tiandituResponse.result?.formattedAddress;
-          if (location != null && location.isNotEmpty) {
-            currentAddress = location;
+    String? currentAddress = AppConfig.currentAddress;
+    if (currentAddress.isEmpty) {
+      final isTiandituKeyConfigured = await TiandituApiService.isKeyConfigured();
+      if (isTiandituKeyConfigured) {
+        try {
+          final tiandituResponse = await TiandituApiService.instance.reverseGeocoding(
+            longitude: AppConfig.currentLongitude,
+            latitude: AppConfig.currentLatitude,
+          );
+          if (tiandituResponse.status == 0) {
+            final location = tiandituResponse.result?.formattedAddress;
+            if (location != null && location.isNotEmpty) {
+              currentAddress = location;
+            }
           }
+        } catch (e) {
+          rethrow;
         }
-      } catch (e) {
-        rethrow;
       }
     }
-    
+
     // 如果天地图逆编码失败或未配置，则调用天气逆编码接口
-    if (currentAddress == null || currentAddress.isEmpty) {
+    if (currentAddress.isEmpty) {
       try {
         final qweatherResponse = await QweatherApiService.lookupCity(locationStr);
         if (qweatherResponse.code == '200') {
@@ -129,15 +131,17 @@ class WeatherCardVm extends _$WeatherCardVm {
         return;
       }
     }
-    
+
     // 判断地址是否为空，为空的话显示错误信息
-    if (currentAddress == null || currentAddress.isEmpty) {
+    if (currentAddress.isEmpty) {
       state = state.copyWith(
           weatherLocationState:
               const WeatherCardLocationState(loadingStatus: LoadingStatus.failure, errorMessage: '位置获取失败: 未获取到地址'));
       return;
     }
-    
+
+    AppConfig.currentAddress = currentAddress;
+
     // 获取天气信息，使用经纬度字符串而不是地址字符串
     try {
       final futures = await Future.wait([
@@ -146,7 +150,7 @@ class WeatherCardVm extends _$WeatherCardVm {
       ]);
       final weatherData = futures[0] as QweatherNowResponse;
       final rainData = futures[1] as QweatherMinutelyResponse;
-      
+
       // 从之前的地址解析结果中提取城市名
       String currentCity = '未知位置';
       if (currentAddress.contains('-')) {
@@ -155,7 +159,7 @@ class WeatherCardVm extends _$WeatherCardVm {
       } else {
         currentCity = currentAddress;
       }
-      
+
       final newState = state.copyWith(
         weatherLocationState: WeatherCardLocationState(
             loadingStatus: LoadingStatus.success,

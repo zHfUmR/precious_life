@@ -75,7 +75,7 @@ class HomeWeatherVm extends _$HomeWeatherVm {
     if (AppConfig.currentLatitude == 0 && AppConfig.currentLongitude == 0) {
       Position location;
       try {
-        location = await LocationUtils.getCurrentPosition();
+        location = await CPLocation.getCurrentPosition();
         // 更新AppConfig中的经纬度值
         AppConfig.currentLatitude = location.latitude;
         AppConfig.currentLongitude = location.longitude;

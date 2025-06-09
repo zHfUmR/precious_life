@@ -40,6 +40,8 @@ class AppConfig {
   // 当前经纬度
   static double currentLatitude = 0;
   static double currentLongitude = 0;
+  // 当前定位地址
+  static String currentAddress = "";
 
   // 和风天气【https://dev.qweather.com/docs/】
   static String qweatherBaseUrl = "https://m4359dtk6r.re.qweatherapi.com";

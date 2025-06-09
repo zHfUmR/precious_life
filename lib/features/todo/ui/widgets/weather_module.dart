@@ -62,7 +62,7 @@ class _WeatherModuleState extends ConsumerState<WeatherModule> {
     final homeWeatherState = ref.watch(homeWeatherVmProvider);
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => GoRouter.of(context).push(AppRoutes.weatherDetail),
+      onTap: () => GoRouter.of(context).push('${AppRoutes.weatherDetail}?cityCode=current_location'),
       onDoubleTap: () => _homeWeatherVm.weatherLocation(),
       onLongPress: () => GoRouter.of(context).push(AppRoutes.weatherConfig),
       child: LoadingStatusWidget(
@@ -120,6 +120,11 @@ class _WeatherModuleState extends ConsumerState<WeatherModule> {
   /// 构建天气关注城市组件
   Widget _buildWeatherFollowedCitiesWidget() {
     final homeWeatherState = ref.watch(homeWeatherVmProvider);
+    // 检查是否有定位城市数据
+    final hasLocationCity = homeWeatherState.weatherLocationState.currentCity != null &&
+        homeWeatherState.weatherLocationState.currentLatitude != null &&
+        homeWeatherState.weatherLocationState.currentLongitude != null;
+        
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () async {
@@ -129,8 +134,9 @@ class _WeatherModuleState extends ConsumerState<WeatherModule> {
           final hasChanged = await GoRouter.of(context).push<bool>(AppRoutes.weatherCitySettings);
           if (hasChanged == true) _homeWeatherVm.weatherFollowed();
         } else {
-          // 如果关注城市不为空，则进入天气详情页面
-          GoRouter.of(context).push(AppRoutes.weatherDetail);
+          // 如果关注城市不为空，则进入天气详情页面，跳转到第一个关注城市
+          final firstFollowedCity = homeWeatherState.weatherFollowedState.followedCitiesWeather!.first;
+          GoRouter.of(context).push('${AppRoutes.weatherDetail}?cityCode=${firstFollowedCity.city.code}');
         }
       },
       onDoubleTap: () => _homeWeatherVm.weatherFollowed(),

@@ -11,7 +11,13 @@ import '../../../../../core/utils/log/log_utils.dart';
 /// 天气详情页面
 /// 全屏显示，包含定位城市和关注城市的天气详情
 class WeatherDetailPage extends ConsumerStatefulWidget {
-  const WeatherDetailPage({super.key});
+  /// 初始显示的城市索引
+  final int? initialCityIndex;
+  
+  /// 初始显示的城市代码
+  final String? initialCityCode;
+  
+  const WeatherDetailPage({super.key, this.initialCityIndex, this.initialCityCode});
 
   @override
   ConsumerState<WeatherDetailPage> createState() => _WeatherDetailPageState();
@@ -63,6 +69,7 @@ class _WeatherDetailPageState extends ConsumerState<WeatherDetailPage> {
           order: -1, // 定位城市排在最前面
         );
         cities.add(currentCity);
+        CPLog.d('🌍 详情页添加定位城市: ${currentCity.simpleDisplayName} (索引0)');
       }
 
       // 添加关注的城市
@@ -71,6 +78,12 @@ class _WeatherDetailPageState extends ConsumerState<WeatherDetailPage> {
         final followedCities = citiesData.map((data) => FollowedCity.fromJson(data)).toList();
         followedCities.sort((a, b) => a.order.compareTo(b.order));
         cities.addAll(followedCities);
+        
+        CPLog.d('🏙️ 详情页添加关注城市:');
+        for (int i = 0; i < followedCities.length; i++) {
+          final startIndex = cities.indexOf(followedCities[i]);
+          CPLog.d('  - ${followedCities[i].simpleDisplayName} (索引$startIndex)');
+        }
       }
 
       setState(() {
@@ -80,6 +93,41 @@ class _WeatherDetailPageState extends ConsumerState<WeatherDetailPage> {
         _pageKeys.clear();
         for (int i = 0; i < cities.length; i++) {
           _pageKeys[i] = GlobalKey<_LazyLoadPageState>();
+        }
+        CPLog.d('🎯 详情页总城市列表: ${cities.map((c) => c.simpleDisplayName).toList()}');
+        CPLog.d('🎯 接收到的initialCityIndex: ${widget.initialCityIndex}');
+        CPLog.d('🎯 接收到的initialCityCode: ${widget.initialCityCode}');
+        
+        // 优先使用城市代码查找，如果没有则使用索引
+        if (widget.initialCityCode != null) {
+          final targetIndex = cities.indexWhere((city) => city.code == widget.initialCityCode);
+          if (targetIndex >= 0) {
+            _currentIndex = targetIndex;
+            CPLog.d('🎯 通过城市代码找到索引: $_currentIndex, 城市: ${cities[_currentIndex].simpleDisplayName}');
+          } else {
+            CPLog.d('❌ 未找到城市代码: ${widget.initialCityCode}');
+          }
+        } else if (widget.initialCityIndex != null && 
+            widget.initialCityIndex! >= 0 && 
+            widget.initialCityIndex! < cities.length) {
+          _currentIndex = widget.initialCityIndex!;
+          CPLog.d('🎯 使用索引: $_currentIndex, 城市: ${cities[_currentIndex].simpleDisplayName}');
+        }
+        
+        // 跳转到目标页面
+        if (_currentIndex > 0) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _pageController.animateToPage(
+              _currentIndex,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+            // 确保当前页面被加载
+            _loadCurrentPage(_currentIndex);
+          });
+        } else {
+          // 加载第一个页面
+          _loadCurrentPage(_currentIndex);
         }
       });
     } catch (e) {
@@ -91,18 +139,15 @@ class _WeatherDetailPageState extends ConsumerState<WeatherDetailPage> {
   /// 处理页面变化
   void _onPageChanged(int index) {
     setState(() => _currentIndex = index);
-    // 触发相邻页面的预加载
-    _preloadAdjacentPages(index);
+    // 只加载当前页面，不预加载其他页面
+    _loadCurrentPage(index);
   }
 
-  /// 预加载相邻页面
-  void _preloadAdjacentPages(int currentIndex) {
-    // 预加载前一页和后一页
-    for (int i = currentIndex - 1; i <= currentIndex + 1; i++) {
-      if (i >= 0 && i < _allCities.length && _pageKeys.containsKey(i)) {
-        final pageState = _pageKeys[i]!.currentState;
-        pageState?._preloadIfNeeded();
-      }
+  /// 加载当前页面
+  void _loadCurrentPage(int currentIndex) {
+    if (currentIndex >= 0 && currentIndex < _allCities.length && _pageKeys.containsKey(currentIndex)) {
+      final pageState = _pageKeys[currentIndex]!.currentState;
+      pageState?._preloadIfNeeded();
     }
   }
 
@@ -189,9 +234,9 @@ class _WeatherDetailPageState extends ConsumerState<WeatherDetailPage> {
   }
 
   /// 判断是否应该加载页面
-  /// 当前页面、前一页和后一页需要预加载
+  /// 只加载当前页面
   bool _shouldLoadPage(int index) {
-    return (index - _currentIndex).abs() <= 1;
+    return index == _currentIndex;
   }
 
   /// 构建空视图
@@ -411,12 +456,22 @@ class _LazyLoadPageState extends State<_LazyLoadPage> {
 
     // 如果需要加载但还没加载完成，显示加载状态
     if (widget.shouldLoad && !_hasCreated) {
-      _createPage();
+      // 延迟加载，添加动画效果
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _createPage();
+        }
+      });
       return _buildLoadingPlaceholder();
     }
 
-    // 返回缓存的页面
-    return _cachedPage ?? _buildLoadingPlaceholder();
+    // 返回缓存的页面，添加淡入动画
+    return _cachedPage != null 
+        ? AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            child: _cachedPage,
+          )
+        : _buildLoadingPlaceholder();
   }
 
   /// 构建占位符
@@ -451,10 +506,19 @@ class _LazyLoadPageState extends State<_LazyLoadPage> {
               ),
               const SizedBox(height: 8),
               Text(
-                '滑动到此页面查看详情',
+                '左右滑动切换到此页面',
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.7),
                   fontSize: 14,
+                  fontWeight: FontWeight.w300,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                '天气数据将自动加载',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.5),
+                  fontSize: 12,
                   fontWeight: FontWeight.w300,
                 ),
               ),

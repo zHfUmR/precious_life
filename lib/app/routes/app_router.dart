@@ -30,7 +30,15 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.weatherDetail,
-        builder: (context, state) => const WeatherDetailPage(),
+        builder: (context, state) {
+          final cityIndexStr = state.uri.queryParameters['cityIndex'];
+          final cityCode = state.uri.queryParameters['cityCode'];
+          final cityIndex = cityIndexStr != null ? int.tryParse(cityIndexStr) : null;
+          return WeatherDetailPage(
+            initialCityIndex: cityIndex,
+            initialCityCode: cityCode,
+          );
+        },
       ),
       GoRoute(
         path: AppRoutes.weatherConfig,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:precious_life/app/routes/route_constants.dart';
+import 'package:precious_life/features/todo/data/models/weather_card_state.dart';
 import 'package:precious_life/features/todo/ui/providers/weather_card_vm.dart';
 import 'package:precious_life/shared/widgets/loading_status_widget.dart';
 import 'package:precious_life/core/utils/weather_utils.dart';
@@ -16,7 +17,6 @@ class WeatherCard extends ConsumerStatefulWidget {
 
 class _WeatherCardState extends ConsumerState<WeatherCard> {
   late WeatherCardVm _weatherCardVm;
-  bool _isExpanded = false;
 
   @override
   void initState() {
@@ -32,14 +32,11 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
     final weatherState = ref.watch(weatherCardVmProvider);
     return Card(
       elevation: 4,
+      color: Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
       child: Container(
-        width: double.infinity,
-        constraints: const BoxConstraints(
-          minHeight: 80,
-        ),
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
         child: LoadingStatusWidget(
           status: weatherState.weatherConfigState.loadingStatus,
@@ -53,6 +50,24 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
 
   /// 构建天气内容
   Widget _buildWeatherContent(weatherState) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildLocationWeather(weatherState),
+        const SizedBox(height: 8),
+        _buildExpandButton(weatherState),
+        if (weatherState.isExpanded)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: _buildFollowedWeather(weatherState),
+          ),
+      ],
+    );
+  }
+
+  /// 构建定位天气部分
+  Widget _buildLocationWeather(weatherState) {
     return LoadingStatusWidget(
       status: weatherState.weatherLocationState.loadingStatus,
       loadingMessage: '获取定位 & 查询天气中...',
@@ -65,14 +80,6 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
           _buildLocationRow(weatherState),
           const SizedBox(height: 8),
           _buildWeatherInfoRow(weatherState),
-          const SizedBox(height: 8),
-          _buildExpandButton(),
-          // 展开的关注城市列表
-          if (_isExpanded)
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: _buildFollowedCitiesList(weatherState),
-            ),
         ],
       ),
     );
@@ -83,9 +90,9 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
     final locationState = weatherState.weatherLocationState;
     return Row(
       children: [
-        const Icon(
+        Icon(
           Icons.location_on,
-          color: Colors.blue,
+          color: Theme.of(context).colorScheme.primary,
           size: 16,
         ),
         const SizedBox(width: 2),
@@ -112,7 +119,7 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
           '${weather?.temp ?? '--'}°',
           style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: Colors.blue.shade700,
+                color: Theme.of(context).colorScheme.primary,
               ),
         ),
         const SizedBox(width: 4),
@@ -133,15 +140,15 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
         Expanded(
           child: Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.water_drop,
-                color: Colors.blue,
+                color: Theme.of(context).colorScheme.primary,
                 size: 14,
               ),
               const SizedBox(width: 2),
               Expanded(
                 child: Text(
-                  _getRainProbability(minutelyRain),
+                  minutelyRain?.summary ?? '无降雨',
                   style: Theme.of(context).textTheme.labelSmall,
                 ),
               ),
@@ -157,7 +164,7 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: Colors.blue.withOpacity(0.1),
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: IconButton(
@@ -165,7 +172,7 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
                 icon: const Icon(Icons.refresh),
                 iconSize: 18,
                 padding: EdgeInsets.zero,
-                color: Colors.blue,
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
             const SizedBox(height: 2),
@@ -181,31 +188,19 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
   }
 
   /// 构建展开/收起按钮
-  Widget _buildExpandButton() => Center(
+  Widget _buildExpandButton(weatherState) => Center(
         child: InkWell(
-          onTap: () {
-            setState(() {
-              _isExpanded = !_isExpanded;
-            });
-          },
+          onTap: () => _weatherCardVm.toggleExpanded(),
           borderRadius: BorderRadius.circular(8),
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 16),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 AnimatedRotation(
-                  turns: _isExpanded ? 0.5 : 0.0,
+                  turns: weatherState.isExpanded ? 0.5 : 0.0,
                   duration: const Duration(milliseconds: 200),
-                  child: const Icon(
-                    Icons.keyboard_arrow_down,
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  _isExpanded ? '收起' : '关注城市',
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  child: const Icon(Icons.keyboard_arrow_down, size: 20),
                 ),
               ],
             ),
@@ -213,282 +208,204 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
         ),
       );
 
-  /// 构建关注城市列表
-  Widget _buildFollowedCitiesList(weatherState) {
-    final followedState = weatherState.weatherFollowedState;
+  /// 构建关注城市内容
+  Widget _buildFollowedWeather(weatherState) {
+    return LoadingStatusWidget(
+      status: weatherState.weatherFollowedState.loadingStatus,
+      loadingMessage: '获取关注城市天气中...',
+      onRetry: () => _weatherCardVm.loadFollowedWeather(),
+      errorMessage: weatherState.weatherFollowedState.errorMessage,
+      child: _buildFollowedWeatherContent(weatherState),
+    );
+  }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Center(
-          child: Row(
+  /// 构建关注城市天气内容
+  Widget _buildFollowedWeatherContent(weatherState) {
+    final cities = weatherState.weatherFollowedState.followedCitiesWeather ?? [];
+    // 检查是否有定位城市数据，用于计算正确的索引偏移
+    final hasLocationCity = weatherState.weatherLocationState.currentCity != null &&
+        weatherState.weatherLocationState.currentLatitude != null &&
+        weatherState.weatherLocationState.currentLongitude != null;
+    
+    if (cities.isEmpty) {
+      return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => GoRouter.of(context).push<bool>(AppRoutes.weatherCitySettings),
+        child: Container(
+          padding: const EdgeInsets.all(2.0),
+          alignment: Alignment.center,
+          child: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
-                '关注城市',
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+              const Icon(
+                Icons.location_city,
+                size: 32,
+                color: Colors.grey,
               ),
-              const SizedBox(width: 8),
-              Container(
-                width: 28,
-                height: 28,
-                decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: IconButton(
-                  onPressed: () => _refreshFollowedCities(),
-                  icon: followedState.loadingStatus == LoadingStatus.loading
-                      ? const SizedBox(
-                          width: 12,
-                          height: 12,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.refresh),
-                  iconSize: 14,
-                  padding: EdgeInsets.zero,
-                  color: Colors.blue,
-                ),
+              const SizedBox(height: 8),
+              Text(
+                '暂无关注城市，请点击添加',
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.grey),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 6),
-        _buildFollowedCitiesContent(followedState),
-      ],
+      );
+    }
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: cities.length,
+      itemBuilder: (context, index) {
+        final cityWeather = cities[index];
+        return AnimatedContainer(
+          duration: Duration(milliseconds: (200 + index * 50).toInt()),
+          curve: Curves.easeOutBack,
+          transform: Matrix4.translationValues(
+            weatherState.isExpanded ? 0 : -20,
+            0,
+            0,
+          ),
+          child: AnimatedOpacity(
+            duration: Duration(milliseconds: (150 + index * 50).toInt()),
+            opacity: weatherState.isExpanded ? 1.0 : 0.0,
+            child: Padding(
+              padding: index > 0 ? const EdgeInsets.only(top: 8.0) : EdgeInsets.zero,
+              child: GestureDetector(
+                // 点击跳转到天气详情页，传递城市代码而不是索引
+                onTap: () {
+                  print('🚀 weather_card点击城市: ${cityWeather.city.simpleDisplayName}, code: ${cityWeather.city.code}');
+                  GoRouter.of(context).push('${AppRoutes.weatherDetail}?cityCode=${cityWeather.city.code}');
+                },
+                // 长按跳转到城市设置页
+                onLongPress: () => GoRouter.of(context).push<bool>(AppRoutes.weatherCitySettings),
+                child: _buildFollowedWeatherItem(cityWeather),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
-  /// 构建关注城市内容
-  Widget _buildFollowedCitiesContent(followedState) {
-    switch (followedState.loadingStatus) {
-      case LoadingStatus.loading:
-        return const Center(
-          child: Padding(
-            padding: EdgeInsets.all(16.0),
-            child: CircularProgressIndicator(),
-          ),
-        );
-      case LoadingStatus.failure:
-        return Center(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              followedState.errorMessage ?? '加载关注城市失败',
-              style: const TextStyle(color: Colors.red),
-            ),
-          ),
-        );
-      case LoadingStatus.success:
-        final cities = followedState.followedCitiesWeather ?? [];
-        if (cities.isEmpty) {
-          return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text('暂无关注城市'),
-            ),
-          );
-        }
-        return Column(
-          children: cities.asMap().entries.map<Widget>((entry) {
-            final index = entry.key;
-            final cityWeather = entry.value;
-            return AnimatedContainer(
-              duration: Duration(milliseconds: (200 + index * 50).toInt()),
-              curve: Curves.easeOutBack,
-              transform: Matrix4.translationValues(
-                _isExpanded ? 0 : -20,
-                0,
-                0,
-              ),
-              child: AnimatedOpacity(
-                duration: Duration(milliseconds: (150 + index * 50).toInt()),
-                opacity: _isExpanded ? 1.0 : 0.0,
-                child: _buildCityWeatherCard(cityWeather),
-              ),
-            );
-          }).toList(),
-        );
-      default:
-        return const SizedBox.shrink();
-    }
-  }
-
-  /// 构建单个城市天气卡片
-  Widget _buildCityWeatherCard(cityWeather) {
+  /// 构建关注城市天气卡片
+  Widget _buildFollowedWeatherItem(WeatherCardFollowedCityWeather cityWeather) {
     final city = cityWeather.city;
     final weather = cityWeather.weather;
-    final hasError = cityWeather.errorMessage != null;
-
+    final errorMessage = cityWeather.errorMessage;
+    
     return Container(
-      margin: const EdgeInsets.only(bottom: 6),
-      padding: const EdgeInsets.all(8),
+      margin: const EdgeInsets.symmetric(vertical: 2),
       decoration: BoxDecoration(
-        color: hasError ? Colors.red.shade50 : Colors.grey.shade50,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Theme.of(context).colorScheme.primary.withOpacity(0.15),
+            Theme.of(context).colorScheme.primary.withOpacity(0.05),
+          ],
+        ),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: hasError ? Colors.red.shade200 : Colors.grey.shade200,
+          color: Theme.of(context).colorScheme.primary.withOpacity(0.3), 
+          width: 1,
         ),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // 城市名称行
-          Row(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
+        child: LoadingStatusWidget(
+          status: cityWeather.loadingStatus,
+          loadingMessage: '获取${city.simpleDisplayName}天气中...',
+          onRetry: () => _weatherCardVm.refreshCityWeather(city),
+          errorMessage: errorMessage,
+          isVertical: false,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Icon(
-                Icons.location_on,
-                color: hasError ? Colors.red : Colors.grey,
-                size: 14,
-              ),
-              const SizedBox(width: 4),
+              // 位置信息
               Expanded(
-                child: Text(
-                  city.simpleDisplayName,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                  overflow: TextOverflow.ellipsis,
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.place,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: 14,
+                    ),
+                    const SizedBox(width: 2),
+                    Expanded(
+                      child: Text(
+                        city.simpleDisplayName,
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
                 ),
+              ),
+              const SizedBox(width: 8),
+              // 温度
+              Text(
+                '${weather?.temp ?? '--'}°',
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+              const SizedBox(width: 8),
+              // 天气图标和状况
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  WeatherUtils.getWeatherIcon(weather?.icon, 14),
+                  Text(
+                    weather?.text ?? '未知',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      fontSize: 9,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+              const SizedBox(width: 8),
+              // 刷新按钮和更新时间
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      onPressed: () => _weatherCardVm.refreshCityWeather(city),
+                      icon: const Icon(Icons.refresh),
+                      iconSize: 14,
+                      padding: EdgeInsets.zero,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                  Text(
+                    _getUpdateTime(weather?.obsTime),
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: Colors.grey.shade600,
+                      fontSize: 8,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-          const SizedBox(height: 6),
-
-          // 天气信息行或错误信息
-          if (hasError)
-            Row(
-              children: [
-                const Icon(Icons.error_outline, color: Colors.red, size: 16),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    cityWeather.errorMessage,
-                    style: const TextStyle(color: Colors.red, fontSize: 12),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            )
-          else
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // 温度
-                Text(
-                  '${weather?.temp ?? '--'}°',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue.shade700,
-                      ),
-                ),
-                const SizedBox(width: 8),
-
-                // 天气图标和状况
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    WeatherUtils.getWeatherIcon(weather?.icon, 16),
-                    const SizedBox(height: 2),
-                    Text(
-                      weather?.text ?? '未知',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            fontSize: 10,
-                          ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-                const SizedBox(width: 8),
-
-                // 体感温度信息
-                Expanded(
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.thermostat,
-                        color: Colors.orange,
-                        size: 12,
-                      ),
-                      const SizedBox(width: 2),
-                      Text(
-                        '${weather?.feelsLike ?? '--'}°',
-                        style: const TextStyle(fontSize: 10),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // 按钮组和时间
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    // 告警按钮和刷新按钮在同一行
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // 告警按钮
-                        Container(
-                          width: 28,
-                          height: 28,
-                          decoration: BoxDecoration(
-                            color: Colors.orange.withOpacity(0.1),
-                            shape: BoxShape.circle,
-                          ),
-                          child: IconButton(
-                            onPressed: () => _showCityWeatherWarning(city.simpleDisplayName),
-                            icon: const Icon(Icons.warning_amber),
-                            iconSize: 14,
-                            padding: EdgeInsets.zero,
-                            color: Colors.orange,
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-
-                        // 刷新按钮
-                        Container(
-                          width: 28,
-                          height: 28,
-                          decoration: BoxDecoration(
-                            color: Colors.blue.withOpacity(0.1),
-                            shape: BoxShape.circle,
-                          ),
-                          child: IconButton(
-                            onPressed: () => _refreshFollowedCities(),
-                            icon: const Icon(Icons.refresh),
-                            iconSize: 14,
-                            padding: EdgeInsets.zero,
-                            color: Colors.blue,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 2),
-                    // 时间文本
-                    Text(
-                      _getUpdateTime(weather?.obsTime),
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.grey.shade600,
-                            fontSize: 9,
-                          ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-        ],
+        ),
       ),
     );
-  }
-
-  /// 获取降雨概率字符串
-  String _getRainProbability(minutelyRain) {
-    if (minutelyRain?.summary?.isNotEmpty == true) {
-      return minutelyRain!.summary!;
-    }
-    return '无降雨';
   }
 
   /// 获取更新时间字符串
@@ -509,17 +426,5 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
     } catch (e) {
       return '未知';
     }
-  }
-
-  /// 刷新关注城市数据
-  void _refreshFollowedCities() {
-    _weatherCardVm.loadFollowedWeather();
-  }
-
-  /// 显示城市天气告警信息
-  void _showCityWeatherWarning(String cityName) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$cityName当前无告警信息')),
-    );
   }
 }

@@ -14,6 +14,7 @@ class WeatherCardState with _$WeatherCardState {
     required WeatherCardConfigState weatherConfigState, // 天气配置状态
     required WeatherCardLocationState weatherLocationState, // 天气定位状态
     required WeatherCardFollowedState weatherFollowedState, // 关注城市状态
+    required bool isExpanded, // 关注城市列表是否展开
   }) = _WeatherCardState;
 }
 
@@ -57,6 +58,7 @@ class WeatherCardFollowedState with _$WeatherCardFollowedState {
 class WeatherCardFollowedCityWeather with _$WeatherCardFollowedCityWeather {
   const factory WeatherCardFollowedCityWeather({
     required FollowedCity city,
+    required LoadingStatus loadingStatus,
     QweatherNow? weather,
     String? errorMessage,
   }) = _WeatherCardFollowedCityWeather;

@@ -19,8 +19,11 @@ class LoadingStatusWidget extends StatelessWidget {
   /// 加载成功时显示的内容
   final Widget child;
 
-  /// 加载中时的提示文案  
+  /// 加载中时的提示文案
   final String? loadingMessage;
+
+  /// 竖直还是水平布局
+  final bool isVertical;
 
   /// 加载失败时的错误信息
   final String? errorMessage;
@@ -36,6 +39,7 @@ class LoadingStatusWidget extends StatelessWidget {
     this.loadingMessage,
     this.errorMessage,
     this.onRetry,
+    this.isVertical = true,
   }) : super(key: key);
 
   @override
@@ -62,24 +66,43 @@ class LoadingStatusWidget extends StatelessWidget {
         );
       case LoadingStatus.loading:
         return _buildScrollableCenter(
-            child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(CPColors.leiMuBlue),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              loadingMessage ?? '加载中...',
-              style: CPTextStyles.s12.c(CPColors.lightGrey),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ));
+            child: isVertical
+                ? Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(CPColors.leiMuBlue),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        loadingMessage ?? '加载中...',
+                        style: CPTextStyles.s12.c(CPColors.lightGrey),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  )
+                : Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(CPColors.leiMuBlue),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        loadingMessage ?? '加载中...',
+                        style: CPTextStyles.s12.c(CPColors.lightGrey),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ));
       case LoadingStatus.failure:
         return _buildScrollableCenter(
           child: GestureDetector(
@@ -133,7 +156,7 @@ class LoadingStatusWidget extends StatelessWidget {
         builder: (context, constraints) {
           // 处理无限大或0值的约束
           final double minHeight =
-              (constraints.maxHeight.isInfinite || constraints.maxHeight <= 0) ? 50 : constraints.maxHeight;
+              (constraints.maxHeight.isInfinite || constraints.maxHeight <= 0) ? 30 : constraints.maxHeight;
           final double minWidth =
               (constraints.maxWidth.isInfinite || constraints.maxWidth <= 0) ? 100 : constraints.maxWidth;
           return SingleChildScrollView(

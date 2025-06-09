@@ -4,8 +4,11 @@ import 'package:precious_life/core/network/api/qweather/qweather_api_model.dart'
 import 'package:precious_life/core/network/api/qweather/qweather_api_service.dart';
 import 'package:precious_life/core/network/api/tianditu/tianditu_api_service.dart';
 import 'package:precious_life/core/utils/location_utils.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:precious_life/core/utils/log/log_utils.dart';
+import 'package:precious_life/core/utils/storage_utils.dart';
 import 'package:precious_life/features/todo/data/models/weather_card_state.dart';
+import 'package:precious_life/features/todo/ui/models/followed_city.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:precious_life/shared/widgets/loading_status_widget.dart';
 
 part 'weather_card_vm.g.dart';
@@ -18,7 +21,8 @@ class WeatherCardVm extends _$WeatherCardVm {
   WeatherCardState build() => const WeatherCardState(
       weatherConfigState: WeatherCardConfigState(loadingStatus: LoadingStatus.initial),
       weatherLocationState: WeatherCardLocationState(loadingStatus: LoadingStatus.initial),
-      weatherFollowedState: WeatherCardFollowedState(loadingStatus: LoadingStatus.initial));
+      weatherFollowedState: WeatherCardFollowedState(loadingStatus: LoadingStatus.initial),
+      isExpanded: false);
 
   // 初始化逻辑：
   // 1.检查天气Key是否配置，未配置则提示用户配置
@@ -27,8 +31,8 @@ class WeatherCardVm extends _$WeatherCardVm {
   Future<void> init() async {
     bool isWeatherKeyConfigured = await checkWeatherKey();
     if (isWeatherKeyConfigured) {
-      await loadLocationWeather();
-      await loadFollowedWeather();
+      loadLocationWeather();
+      loadFollowedWeather();
     }
   }
 
@@ -179,5 +183,121 @@ class WeatherCardVm extends _$WeatherCardVm {
     }
   }
 
-  Future<void> loadFollowedWeather() async {}
+  /// 获取关注城市天气信息，逻辑:
+  Future<void> loadFollowedWeather() async {
+    state = state.copyWith(weatherFollowedState: const WeatherCardFollowedState(loadingStatus: LoadingStatus.loading));
+    try {
+      final citiesData = await StorageUtils.instance.getObjectList(StorageKeys.followedCities);
+      if (citiesData == null || citiesData.isEmpty) {
+        state = state.copyWith(
+            weatherFollowedState:
+                const WeatherCardFollowedState(loadingStatus: LoadingStatus.success, followedCitiesWeather: []));
+        return;
+      }
+      final followedCities = citiesData.map((data) => FollowedCity.fromJson(data)).toList();
+      // 按照order排序
+      followedCities.sort((a, b) => a.order.compareTo(b.order));
+      
+      // 首先为每个城市创建loading状态
+      final List<WeatherCardFollowedCityWeather> citiesWeather = followedCities
+          .map((city) => WeatherCardFollowedCityWeather(
+                city: city,
+                loadingStatus: LoadingStatus.loading,
+              ))
+          .toList();
+      
+      // 更新状态显示loading中的城市列表
+      state = state.copyWith(
+          weatherFollowedState:
+              WeatherCardFollowedState(loadingStatus: LoadingStatus.success, followedCitiesWeather: citiesWeather));
+      
+      // 并发获取所有城市的天气数据
+      final futures = followedCities.asMap().entries.map((entry) async {
+        final city = entry.value;
+        try {
+          final locationStr = "${city.longitude},${city.latitude}";
+          final weatherResponse = await QweatherApiService.getNowWeather(locationStr);
+          return WeatherCardFollowedCityWeather(
+            city: city,
+            loadingStatus: LoadingStatus.success,
+            weather: weatherResponse.now,
+          );
+        } catch (e) {
+          return WeatherCardFollowedCityWeather(
+            city: city,
+            loadingStatus: LoadingStatus.failure,
+            errorMessage: e.toString(),
+          );
+        }
+      });
+      
+      // 等待所有请求完成并更新状态
+      final results = await Future.wait(futures);
+      state = state.copyWith(
+          weatherFollowedState:
+              WeatherCardFollowedState(loadingStatus: LoadingStatus.success, followedCitiesWeather: results));
+    } catch (e) {
+      state = state.copyWith(
+          weatherFollowedState:
+              WeatherCardFollowedState(loadingStatus: LoadingStatus.failure, errorMessage: '关注城市天气获取失败: ${e.toString()}'));
+    }
+  }
+
+  /// 刷新某个特定城市的天气信息
+  Future<void> refreshCityWeather(FollowedCity city) async {
+    try {
+      final currentCities = state.weatherFollowedState.followedCitiesWeather ?? [];
+      final cityIndex = currentCities.indexWhere((cityWeather) => cityWeather.city.code == city.code);
+      
+      if (cityIndex == -1) return; // 城市不在列表中
+      
+      // 创建新的城市列表，将目标城市设置为加载状态
+      final updatedCities = List<WeatherCardFollowedCityWeather>.from(currentCities);
+      updatedCities[cityIndex] = WeatherCardFollowedCityWeather(
+        city: city,
+        loadingStatus: LoadingStatus.loading,
+      );
+      
+      // 先更新为加载状态
+      state = state.copyWith(
+        weatherFollowedState: state.weatherFollowedState.copyWith(
+          followedCitiesWeather: updatedCities
+        )
+      );
+      
+      try {
+        final locationStr = "${city.longitude},${city.latitude}";
+        final weatherResponse = await QweatherApiService.getNowWeather(locationStr);
+        
+        // 更新成功
+        updatedCities[cityIndex] = WeatherCardFollowedCityWeather(
+          city: city,
+          loadingStatus: LoadingStatus.success,
+          weather: weatherResponse.now,
+        );
+      } catch (e) {
+        // 更新失败，设置错误信息
+        updatedCities[cityIndex] = WeatherCardFollowedCityWeather(
+          city: city,
+          loadingStatus: LoadingStatus.failure,
+          errorMessage: e.toString(),
+        );
+      }
+      
+      // 更新最终状态
+      state = state.copyWith(
+        weatherFollowedState: state.weatherFollowedState.copyWith(
+          followedCitiesWeather: updatedCities
+        )
+      );
+    } catch (e) {
+      // 刷新失败的处理
+      CPLog.e('刷新城市天气失败: $e');
+    }
+  }
+
+  /// 切换天气卡片展开状态
+  toggleExpanded() {
+    state = state.copyWith(isExpanded: !state.isExpanded);
+  }
 }

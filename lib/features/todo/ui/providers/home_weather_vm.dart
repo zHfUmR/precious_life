@@ -127,7 +127,7 @@ class HomeWeatherVm extends _$HomeWeatherVm {
   Future<void> weatherFollowed() async {
     state = state.copyWith(weatherFollowedState: const WeatherFollowedState(loadingStatus: LoadingStatus.loading));
     try {
-      final citiesData = await StorageUtils.instance.getObjectList(StorageKeys.followedCities);
+      final citiesData = await StorageUtils.instance.getObjectList(StorageKeys.followedPoints);
       if (citiesData == null || citiesData.isEmpty) {
         state = state.copyWith(
             weatherFollowedState:
@@ -163,7 +163,7 @@ class HomeWeatherVm extends _$HomeWeatherVm {
 
     try {
       // 从本地存储加载关注的城市列表
-      final citiesData = await StorageUtils.instance.getObjectList(StorageKeys.followedCities);
+      final citiesData = await StorageUtils.instance.getObjectList(StorageKeys.followedPoints);
 
       if (citiesData == null || citiesData.isEmpty) {
         state = state.copyWith(

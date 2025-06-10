@@ -7,7 +7,6 @@ import 'package:precious_life/core/utils/city_utils.dart';
 import 'package:precious_life/core/utils/log/log_utils.dart';
 import 'package:precious_life/core/utils/storage_utils.dart';
 import 'package:precious_life/features/todo/ui/models/followed_city.dart';
-import 'package:precious_life/features/todo/ui/widgets/weather_bottom_sheet.dart';
 
 /// 城市搜索页面
 /// 用于搜索和选择城市
@@ -39,7 +38,7 @@ class _CitySearchPageState extends ConsumerState<CitySearchPage> {
   /// 加载已关注的城市列表
   Future<void> _loadFollowedCities() async {
     try {
-      final citiesData = await StorageUtils.instance.getObjectList(StorageKeys.followedCities);
+      final citiesData = await StorageUtils.instance.getObjectList(StorageKeys.followedPoints);
       if (citiesData != null && mounted) {
         final cities = citiesData.map((data) => FollowedCity.fromJson(data)).toList();
         setState(() {
@@ -110,7 +109,6 @@ class _CitySearchPageState extends ConsumerState<CitySearchPage> {
 
   /// 处理城市点击（查看天气详情）
   void _onCityTapped(CityInfo cityInfo) {
-    showWeatherBottomSheet(context, cityInfo);
   }
 
   @override

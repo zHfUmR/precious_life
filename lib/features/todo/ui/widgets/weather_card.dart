@@ -73,14 +73,17 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
       loadingMessage: '获取定位 & 查询天气中...',
       onRetry: () => _weatherCardVm.loadLocationWeather(),
       errorMessage: weatherState.weatherLocationState.errorMessage,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildLocationRow(weatherState),
-          const SizedBox(height: 8),
-          _buildWeatherInfoRow(weatherState),
-        ],
+      child: GestureDetector(
+        onTap: () => GoRouter.of(context).push(AppRoutes.weatherLocationSettings),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildLocationRow(weatherState),
+            const SizedBox(height: 8),
+            _buildWeatherInfoRow(weatherState),
+          ],
+        ),
       ),
     );
   }
@@ -221,16 +224,12 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
 
   /// 构建关注城市天气内容
   Widget _buildFollowedWeatherContent(weatherState) {
-    final cities = weatherState.weatherFollowedState.followedCitiesWeather ?? [];
-    // 检查是否有定位城市数据，用于计算正确的索引偏移
-    final hasLocationCity = weatherState.weatherLocationState.currentCity != null &&
-        weatherState.weatherLocationState.currentLatitude != null &&
-        weatherState.weatherLocationState.currentLongitude != null;
-    
-    if (cities.isEmpty) {
+    final points = weatherState.weatherFollowedState.followedWeather ?? [];
+    // 检查是否有关注点数据
+    if (points.isEmpty) {
       return GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: () => GoRouter.of(context).push<bool>(AppRoutes.weatherCitySettings),
+        onTap: () => GoRouter.of(context).push<bool>(AppRoutes.weatherLocationSettings),
         child: Container(
           padding: const EdgeInsets.all(2.0),
           alignment: Alignment.center,
@@ -256,9 +255,9 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: cities.length,
+      itemCount: points.length,
       itemBuilder: (context, index) {
-        final cityWeather = cities[index];
+        final pointWeather = points[index];
         return AnimatedContainer(
           duration: Duration(milliseconds: (200 + index * 50).toInt()),
           curve: Curves.easeOutBack,
@@ -275,12 +274,12 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
               child: GestureDetector(
                 // 点击跳转到天气详情页，传递城市代码而不是索引
                 onTap: () {
-                  print('🚀 weather_card点击城市: ${cityWeather.city.simpleDisplayName}, code: ${cityWeather.city.code}');
-                  GoRouter.of(context).push('${AppRoutes.weatherDetail}?cityCode=${cityWeather.city.code}');
+                  print('🚀 weather_card点击城市: ${pointWeather.point.poiName ?? pointWeather.point.name ?? ''}, code: ${pointWeather.point.code}');
+                  GoRouter.of(context).push('${AppRoutes.weatherDetail}?cityCode=${pointWeather.point.code}');
                 },
                 // 长按跳转到城市设置页
                 onLongPress: () => GoRouter.of(context).push<bool>(AppRoutes.weatherCitySettings),
-                child: _buildFollowedWeatherItem(cityWeather),
+                child: _buildFollowedWeatherItem(pointWeather),
               ),
             ),
           ),
@@ -290,10 +289,10 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
   }
 
   /// 构建关注城市天气卡片
-  Widget _buildFollowedWeatherItem(WeatherCardFollowedCityWeather cityWeather) {
-    final city = cityWeather.city;
-    final weather = cityWeather.weather;
-    final errorMessage = cityWeather.errorMessage;
+  Widget _buildFollowedWeatherItem(WeatherCardFollowedWeather pointWeather) {
+    final point = pointWeather.point;
+    final weather = pointWeather.weather;
+    final errorMessage = pointWeather.errorMessage;
     
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 2),
@@ -315,9 +314,9 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
         child: LoadingStatusWidget(
-          status: cityWeather.loadingStatus,
-          loadingMessage: '获取${city.simpleDisplayName}天气中...',
-          onRetry: () => _weatherCardVm.refreshCityWeather(city),
+          status: pointWeather.loadingStatus,
+          loadingMessage: '获取天气中...',
+          onRetry: () => _weatherCardVm.refreshCityWeather(point),
           errorMessage: errorMessage,
           isVertical: false,
           child: Row(
@@ -335,7 +334,7 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
                     const SizedBox(width: 2),
                     Expanded(
                       child: Text(
-                        city.simpleDisplayName,
+                        point.poiName ?? point.name ?? '',
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
                           fontWeight: FontWeight.w600,
                           color: Theme.of(context).colorScheme.primary,
@@ -385,7 +384,7 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
                       shape: BoxShape.circle,
                     ),
                     child: IconButton(
-                      onPressed: () => _weatherCardVm.refreshCityWeather(city),
+                      onPressed: () => _weatherCardVm.refreshCityWeather(point),
                       icon: const Icon(Icons.refresh),
                       iconSize: 14,
                       padding: EdgeInsets.zero,

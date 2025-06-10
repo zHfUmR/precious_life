@@ -1,9 +1,9 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:precious_life/core/network/api/qweather/qweather_api_model.dart';
+import 'package:precious_life/features/todo/ui/models/followed_point.dart';
 import 'package:precious_life/shared/widgets/loading_status_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:precious_life/core/utils/weather_utils.dart';
-import 'package:precious_life/features/todo/ui/models/followed_city.dart';
 
 part 'weather_card_state.freezed.dart';
 
@@ -13,8 +13,8 @@ class WeatherCardState with _$WeatherCardState {
   const factory WeatherCardState({
     required WeatherCardConfigState weatherConfigState, // 天气配置状态
     required WeatherCardLocationState weatherLocationState, // 天气定位状态
-    required WeatherCardFollowedState weatherFollowedState, // 关注城市状态
-    required bool isExpanded, // 关注城市列表是否展开
+    required WeatherCardFollowedState weatherFollowedState, // 关注点状态
+    required bool isExpanded, // 关注点列表是否展开
   }) = _WeatherCardState;
 }
 
@@ -43,25 +43,25 @@ class WeatherCardLocationState with _$WeatherCardLocationState {
   }) = _WeatherCardLocationState;
 }
 
-/// WeatherCard 关注城市天气状态
+/// WeatherCard 关注点天气状态
 @freezed
 class WeatherCardFollowedState with _$WeatherCardFollowedState {
   const factory WeatherCardFollowedState({
     required LoadingStatus loadingStatus,
     String? errorMessage,
-    List<WeatherCardFollowedCityWeather>? followedCitiesWeather, // 关注城市天气列表
+    List<WeatherCardFollowedWeather>? followedWeather, // 关注点天气列表
   }) = _WeatherCardFollowedState;
 }
 
-/// WeatherCard 关注城市天气数据模型
+/// WeatherCard 关注点天气数据模型
 @freezed
-class WeatherCardFollowedCityWeather with _$WeatherCardFollowedCityWeather {
-  const factory WeatherCardFollowedCityWeather({
-    required FollowedCity city,
+class WeatherCardFollowedWeather with _$WeatherCardFollowedWeather {
+  const factory WeatherCardFollowedWeather({
+    required FollowedPoint point,
     required LoadingStatus loadingStatus,
     QweatherNow? weather,
     String? errorMessage,
-  }) = _WeatherCardFollowedCityWeather;
+  }) = _WeatherCardFollowedWeather;
 }
 
 /// WeatherCardState的扩展类

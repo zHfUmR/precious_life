@@ -151,7 +151,7 @@ class StorageKeys {
   StorageKeys._();
 
   /// 关注的城市列表
-  static const String followedCities = 'followed_cities';
+  static const String followedPoints = 'followed_points';
 
   /// 当前选中的城市
   static const String currentCity = 'current_city';

@@ -8,6 +8,7 @@ import 'package:precious_life/core/utils/log/log_utils.dart';
 import 'package:precious_life/core/utils/storage_utils.dart';
 import 'package:precious_life/features/todo/data/models/weather_card_state.dart';
 import 'package:precious_life/features/todo/ui/models/followed_city.dart';
+import 'package:precious_life/features/todo/ui/models/followed_point.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:precious_life/shared/widgets/loading_status_widget.dart';
 
@@ -184,24 +185,28 @@ class WeatherCardVm extends _$WeatherCardVm {
   }
 
   /// 获取关注城市天气信息，逻辑:
+  /// 
+  /// 1. 获取关注点列表，如果为空，则显示空列表
+  /// 2. 获取关注点天气信息，如果获取失败，则显示错误信息
+  /// 3. 更新状态
   Future<void> loadFollowedWeather() async {
     state = state.copyWith(weatherFollowedState: const WeatherCardFollowedState(loadingStatus: LoadingStatus.loading));
     try {
-      final citiesData = await StorageUtils.instance.getObjectList(StorageKeys.followedCities);
-      if (citiesData == null || citiesData.isEmpty) {
+      final followedPointsData = await StorageUtils.instance.getObjectList(StorageKeys.followedPoints);
+      if (followedPointsData == null || followedPointsData.isEmpty) {
         state = state.copyWith(
             weatherFollowedState:
-                const WeatherCardFollowedState(loadingStatus: LoadingStatus.success, followedCitiesWeather: []));
+                const WeatherCardFollowedState(loadingStatus: LoadingStatus.success, followedWeather: []));
         return;
       }
-      final followedCities = citiesData.map((data) => FollowedCity.fromJson(data)).toList();
+      final followedPoints = followedPointsData.map((data) => FollowedPoint.fromJson(data)).toList();
       // 按照order排序
-      followedCities.sort((a, b) => a.order.compareTo(b.order));
-      
+      followedPoints.sort((a, b) => a.order.compareTo(b.order));
+
       // 首先为每个城市创建loading状态
-      final List<WeatherCardFollowedCityWeather> citiesWeather = followedCities
-          .map((city) => WeatherCardFollowedCityWeather(
-                city: city,
+      final List<WeatherCardFollowedWeather> pointsWeather = followedPoints
+          .map((point) => WeatherCardFollowedWeather(
+                point: FollowedPoint.copyFrom(point),
                 loadingStatus: LoadingStatus.loading,
               ))
           .toList();
@@ -209,22 +214,21 @@ class WeatherCardVm extends _$WeatherCardVm {
       // 更新状态显示loading中的城市列表
       state = state.copyWith(
           weatherFollowedState:
-              WeatherCardFollowedState(loadingStatus: LoadingStatus.success, followedCitiesWeather: citiesWeather));
+              WeatherCardFollowedState(loadingStatus: LoadingStatus.success, followedWeather: pointsWeather));
       
       // 并发获取所有城市的天气数据
-      final futures = followedCities.asMap().entries.map((entry) async {
-        final city = entry.value;
+      final futures = followedPoints.asMap().entries.map((entry) async {
+        final point = entry.value;
         try {
-          final locationStr = "${city.longitude},${city.latitude}";
-          final weatherResponse = await QweatherApiService.getNowWeather(locationStr);
-          return WeatherCardFollowedCityWeather(
-            city: city,
+          final weatherResponse = await QweatherApiService.getNowWeather(point.locationString);
+          return WeatherCardFollowedWeather(
+            point: FollowedPoint.copyFrom(point),
             loadingStatus: LoadingStatus.success,
             weather: weatherResponse.now,
           );
         } catch (e) {
-          return WeatherCardFollowedCityWeather(
-            city: city,
+          return WeatherCardFollowedWeather(
+            point: FollowedPoint.copyFrom(point),
             loadingStatus: LoadingStatus.failure,
             errorMessage: e.toString(),
           );
@@ -235,7 +239,7 @@ class WeatherCardVm extends _$WeatherCardVm {
       final results = await Future.wait(futures);
       state = state.copyWith(
           weatherFollowedState:
-              WeatherCardFollowedState(loadingStatus: LoadingStatus.success, followedCitiesWeather: results));
+              WeatherCardFollowedState(loadingStatus: LoadingStatus.success, followedWeather: results));
     } catch (e) {
       state = state.copyWith(
           weatherFollowedState:
@@ -244,41 +248,41 @@ class WeatherCardVm extends _$WeatherCardVm {
   }
 
   /// 刷新某个特定城市的天气信息
-  Future<void> refreshCityWeather(FollowedCity city) async {
+  Future<void> refreshCityWeather(FollowedPoint point) async {
     try {
-      final currentCities = state.weatherFollowedState.followedCitiesWeather ?? [];
-      final cityIndex = currentCities.indexWhere((cityWeather) => cityWeather.city.code == city.code);
+      final currentCities = state.weatherFollowedState.followedWeather ?? [];
+      final cityIndex = currentCities.indexWhere((cityWeather) => cityWeather.point.code == point.code);
       
       if (cityIndex == -1) return; // 城市不在列表中
       
       // 创建新的城市列表，将目标城市设置为加载状态
-      final updatedCities = List<WeatherCardFollowedCityWeather>.from(currentCities);
-      updatedCities[cityIndex] = WeatherCardFollowedCityWeather(
-        city: city,
+      final updatedCities = List<WeatherCardFollowedWeather>.from(currentCities);
+      updatedCities[cityIndex] = WeatherCardFollowedWeather(
+        point: FollowedPoint.copyFrom(point),
         loadingStatus: LoadingStatus.loading,
       );
       
       // 先更新为加载状态
       state = state.copyWith(
         weatherFollowedState: state.weatherFollowedState.copyWith(
-          followedCitiesWeather: updatedCities
+          followedWeather: updatedCities
         )
       );
       
       try {
-        final locationStr = "${city.longitude},${city.latitude}";
-        final weatherResponse = await QweatherApiService.getNowWeather(locationStr);
+        final followedPoint = FollowedPoint.copyFrom(point);
+        final weatherResponse = await QweatherApiService.getNowWeather(followedPoint.locationString);
         
         // 更新成功
-        updatedCities[cityIndex] = WeatherCardFollowedCityWeather(
-          city: city,
+        updatedCities[cityIndex] = WeatherCardFollowedWeather(
+          point: followedPoint,
           loadingStatus: LoadingStatus.success,
           weather: weatherResponse.now,
         );
       } catch (e) {
         // 更新失败，设置错误信息
-        updatedCities[cityIndex] = WeatherCardFollowedCityWeather(
-          city: city,
+        updatedCities[cityIndex] = WeatherCardFollowedWeather(
+          point: FollowedPoint.copyFrom(point),
           loadingStatus: LoadingStatus.failure,
           errorMessage: e.toString(),
         );
@@ -287,7 +291,7 @@ class WeatherCardVm extends _$WeatherCardVm {
       // 更新最终状态
       state = state.copyWith(
         weatherFollowedState: state.weatherFollowedState.copyWith(
-          followedCitiesWeather: updatedCities
+          followedWeather: updatedCities
         )
       );
     } catch (e) {
@@ -299,5 +303,33 @@ class WeatherCardVm extends _$WeatherCardVm {
   /// 切换天气卡片展开状态
   toggleExpanded() {
     state = state.copyWith(isExpanded: !state.isExpanded);
+  }
+
+  /// 更新关注点列表
+  Future<void> updateFollowedPoints(List<FollowedPoint> followedPoints) async {
+    // 更新order字段，确保顺序正确
+    final updatedPoints = followedPoints.asMap().entries.map((entry) {
+      return entry.value.copyWith(order: entry.key);
+    }).toList();
+    
+    // 保存到本地存储
+    try {
+      final pointsJson = updatedPoints.map((point) => point.toJson()).toList();
+      await StorageUtils.instance.setObjectList(StorageKeys.followedPoints, pointsJson);
+    } catch (e) {
+      CPLog.e('保存关注点到本地存储失败: $e');
+      // 即使保存失败，也要更新UI状态
+    }
+    
+    // 更新内存状态
+    final followedWeather = updatedPoints.map((point) => WeatherCardFollowedWeather(
+      point: FollowedPoint.copyFrom(point),
+      loadingStatus: LoadingStatus.success,
+    )).toList();
+    state = state.copyWith(
+      weatherFollowedState: state.weatherFollowedState.copyWith(
+        followedWeather: followedWeather
+      )
+    );
   }
 }

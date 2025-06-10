@@ -74,7 +74,7 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
       onRetry: () => _weatherCardVm.loadLocationWeather(),
       errorMessage: weatherState.weatherLocationState.errorMessage,
       child: GestureDetector(
-        onTap: () => GoRouter.of(context).push(AppRoutes.weatherLocationSettings),
+        onTap: () => {},
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -193,7 +193,7 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
   /// 构建展开/收起按钮
   Widget _buildExpandButton(weatherState) => Center(
         child: InkWell(
-          onTap: () => _weatherCardVm.toggleExpanded(),
+          onTap: () => {},
           borderRadius: BorderRadius.circular(8),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 16),
@@ -229,7 +229,7 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
     if (points.isEmpty) {
       return GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: () => GoRouter.of(context).push<bool>(AppRoutes.weatherLocationSettings),
+        onTap: () => {},
         child: Container(
           padding: const EdgeInsets.all(2.0),
           alignment: Alignment.center,
@@ -278,7 +278,7 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
                   GoRouter.of(context).push('${AppRoutes.weatherDetail}?cityCode=${pointWeather.point.code}');
                 },
                 // 长按跳转到城市设置页
-                onLongPress: () => GoRouter.of(context).push<bool>(AppRoutes.weatherCitySettings),
+                onLongPress: () => {},
                 child: _buildFollowedWeatherItem(pointWeather),
               ),
             ),
@@ -316,7 +316,7 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
         child: LoadingStatusWidget(
           status: pointWeather.loadingStatus,
           loadingMessage: '获取天气中...',
-          onRetry: () => _weatherCardVm.refreshCityWeather(point),
+          onRetry: () => {},
           errorMessage: errorMessage,
           isVertical: false,
           child: Row(
@@ -334,7 +334,7 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
                     const SizedBox(width: 2),
                     Expanded(
                       child: Text(
-                        point.poiName ?? point.name ?? '',
+                        point.poiName  ?? '',
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
                           fontWeight: FontWeight.w600,
                           color: Theme.of(context).colorScheme.primary,
@@ -384,7 +384,7 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
                       shape: BoxShape.circle,
                     ),
                     child: IconButton(
-                      onPressed: () => _weatherCardVm.refreshCityWeather(point),
+                      onPressed: () => {},
                       icon: const Icon(Icons.refresh),
                       iconSize: 14,
                       padding: EdgeInsets.zero,

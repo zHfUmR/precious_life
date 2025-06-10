@@ -6,7 +6,7 @@ import 'package:precious_life/config/color_style.dart';
 import 'package:precious_life/config/text_style.dart';
 import 'package:precious_life/core/network/api/qweather/qweather_api_service.dart';
 import 'package:precious_life/core/utils/storage_utils.dart';
-import 'package:precious_life/features/todo/ui/providers/home_weather_vm.dart';
+import 'package:precious_life/features/todo/ui/providers/weather_card_vm.dart';
 import '../../../../../core/utils/log/log_utils.dart';
 
 /// 天气配置设置页面
@@ -123,7 +123,7 @@ class _WeatherConfigSettingsPageState extends ConsumerState<WeatherConfigSetting
         actions: [
           CupertinoDialogAction(
             onPressed: () {
-              ref.read(homeWeatherVmProvider.notifier).init();
+              ref.read(weatherCardVmProvider.notifier).init();
               Navigator.of(context).pop(); // 关闭弹窗
               context.pop(true); // 关闭页面并返回true表示配置成功
             },

@@ -7,10 +7,6 @@ class AppRoutes {
   static const String homeFeed = '/home/feed';  // 首页-动态
   static const String homeTools = '/home/tools';  // 首页-工具
   static const String widgetShowcase = '/widget-showcase';  // 组件展示
-  static const String weatherCitySettings = '/weather/city-settings';  // 天气-城市设置
-  static const String weatherLocationSettings = '/weather/location-settings';  // 天气-关注点设置
-  static const String citySearch = '/weather/city-search';  // 天气-城市搜索
-  static const String weatherFollowedSearch = '/weather/followed-search';  // 天气-关注点搜索
   static const String weatherDetail = '/weather/detail';  // 天气-详情
   static const String weatherConfig = '/weather/config';  // 天气-配置设置
 }

@@ -7,7 +7,6 @@ import 'package:precious_life/config/text_style.dart';
 import 'package:precious_life/core/utils/screen_utils.dart';
 import 'package:precious_life/features/todo/ui/providers/home_time_vm.dart';
 import 'package:precious_life/features/todo/ui/widgets/countdown_module.dart';
-import 'package:precious_life/features/todo/ui/widgets/weather_module.dart';
 
 class DashboardModule extends ConsumerStatefulWidget {
   const DashboardModule({super.key});

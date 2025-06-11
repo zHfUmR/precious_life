@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:precious_life/app/routes/route_constants.dart';
 import 'package:precious_life/features/home/ui/pages/home_page.dart';
 import 'package:precious_life/features/todo/ui/pages/settings/weather_config_settings_page.dart';
+import 'package:precious_life/features/todo/ui/pages/settings/weather_followed_search_page.dart';
+import 'package:precious_life/features/todo/ui/pages/settings/weather_followed_settings_page.dart';
 
 
 /// 路由配置提供者
@@ -32,6 +34,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.weatherConfig,
         builder: (context, state) => const WeatherConfigSettingsPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.weatherFollowedSettings,
+        builder: (context, state) => const WeatherFollowedSettingsPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.weatherFollowedSearch,
+        builder: (context, state) => const WeatherFollowedSearchPage(),
       ),
     ],
   );

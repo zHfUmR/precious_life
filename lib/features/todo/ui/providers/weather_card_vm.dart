@@ -1,10 +1,14 @@
+import 'dart:convert';
+
 import 'package:geolocator/geolocator.dart';
 import 'package:precious_life/config/app_config.dart';
 import 'package:precious_life/core/network/api/qweather/qweather_api_model.dart';
 import 'package:precious_life/core/network/api/qweather/qweather_api_service.dart';
 import 'package:precious_life/core/network/api/tianditu/tianditu_api_service.dart';
 import 'package:precious_life/core/utils/location_utils.dart';
+import 'package:precious_life/core/utils/storage_utils.dart';
 import 'package:precious_life/features/todo/data/models/weather_card_state.dart';
+import 'package:precious_life/features/todo/ui/models/followed_point.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:precious_life/shared/widgets/loading_status_widget.dart';
 part 'weather_card_vm.g.dart';
@@ -180,14 +184,169 @@ class WeatherCardVm extends _$WeatherCardVm {
   }
 
   /// 获取关注城市天气信息，逻辑:
-  /// 
+  ///
   /// 1. 获取关注点列表，如果为空，则显示空列表
   /// 2. 获取关注点天气信息，如果获取失败，则显示错误信息
   /// 3. 更新状态
   Future<void> loadFollowedWeather() async {
     state = state.copyWith(weatherFollowedState: const WeatherCardFollowedState(loadingStatus: LoadingStatus.loading));
-    
+    // 读取SP里的数据
+    final followedPointsJson = await StorageUtils.instance.getString(StorageKeys.followedWeatherPoints);
+    if (followedPointsJson == null || followedPointsJson.isEmpty) {
+      state = state.copyWith(
+          weatherFollowedState:
+              const WeatherCardFollowedState(loadingStatus: LoadingStatus.success, followedWeather: []));
+      return;
+    }
+    // followedPointsJson 字符串先转换为列表，再转换为FollowedPoint列表
+    final followedPoints = jsonDecode(followedPointsJson) as List<dynamic>;
+    final followedPointsList = followedPoints.map((e) => FollowedPoint.fromJson(e)).toList();
+    // 并发获取所有关注点的天气信息，包容失败的请求
+    final weatherResults = <WeatherCardFollowedWeather>[];
+
+    // 为每个关注点创建独立的天气请求任务
+    final weatherFutures = followedPointsList.map((point) async {
+      try {
+        final weatherResponse = await QweatherApiService.getNowWeather(point.locationStr);
+        return WeatherCardFollowedWeather(
+          point: point,
+          loadingStatus: LoadingStatus.success,
+          weather: weatherResponse.now,
+        );
+      } catch (e) {
+        // 如果单个城市天气获取失败，记录错误但不影响其他城市
+        return WeatherCardFollowedWeather(
+          point: point,
+          loadingStatus: LoadingStatus.failure,
+          errorMessage: '天气获取失败: ${e.toString()}',
+        );
+      }
+    }).toList();
+
+    // 等待所有请求完成（包括失败的）
+    final results = await Future.wait(weatherFutures);
+    weatherResults.addAll(results);
+
+    // 更新状态为成功，包含所有关注点的天气数据（成功或失败）
+    state = state.copyWith(
+        weatherFollowedState:
+            WeatherCardFollowedState(loadingStatus: LoadingStatus.success, followedWeather: weatherResults));
   }
 
- 
+  /// 获取关注点天气信息
+  Future<void> getFollowedWeather(FollowedPoint point) async {
+    // 获取当前关注点列表
+    List<WeatherCardFollowedWeather>? followedWeatherList = state.weatherFollowedState.followedWeather ?? [];
+    
+    // 找到要刷新的关注点并设置为loading状态
+    final updatedList = followedWeatherList.map((item) {
+      if (item.point.uniqueId == point.uniqueId) {
+        return item.copyWith(loadingStatus: LoadingStatus.loading);
+      }
+      return item;
+    }).toList();
+    
+    // 更新状态为loading
+    state = state.copyWith(
+      weatherFollowedState: WeatherCardFollowedState(
+        loadingStatus: LoadingStatus.success,
+        followedWeather: updatedList,
+      ),
+    );
+    
+    try {
+      // 发起天气请求
+      final weatherResponse = await QweatherApiService.getNowWeather(point.locationStr);
+      
+      // 更新成功状态
+      final finalList = updatedList.map((item) {
+        if (item.point.uniqueId == point.uniqueId) {
+          return item.copyWith(
+            loadingStatus: LoadingStatus.success,
+            weather: weatherResponse.now,
+            errorMessage: null,
+          );
+        }
+        return item;
+      }).toList();
+      
+      // 保存到本地存储
+      final pointsToStore = finalList.map((e) => e.point).toList();
+      final newPointsJson = jsonEncode(pointsToStore);
+      await StorageUtils.instance.setString(StorageKeys.followedWeatherPoints, newPointsJson);
+      
+      state = state.copyWith(
+        weatherFollowedState: WeatherCardFollowedState(
+          loadingStatus: LoadingStatus.success,
+          followedWeather: finalList,
+        ),
+      );
+    } catch (e) {
+      // 更新失败状态
+      final errorList = updatedList.map((item) {
+        if (item.point.uniqueId == point.uniqueId) {
+          return item.copyWith(
+            loadingStatus: LoadingStatus.failure,
+            errorMessage: '天气获取失败: ${e.toString()}',
+          );
+        }
+        return item;
+      }).toList();
+      
+      state = state.copyWith(
+        weatherFollowedState: WeatherCardFollowedState(
+          loadingStatus: LoadingStatus.success,
+          followedWeather: errorList,
+        ),
+      );
+    }
+  }
+
+  /// 添加关注点
+  Future<void> addFollowedPoint(FollowedPoint point) async {
+    List<WeatherCardFollowedWeather>? followedWeatherList = state.weatherFollowedState.followedWeather ?? [];
+    final weatherResponse = await QweatherApiService.getNowWeather(point.locationStr);
+    // 构造新的WeatherCardFollowedWeather对象
+    final newPoint = WeatherCardFollowedWeather(
+      point: point.copyWith(sort: followedWeatherList.length + 1),
+      loadingStatus: LoadingStatus.success,
+      weather: weatherResponse.now,
+    );
+    final newPoints = [...followedWeatherList, newPoint];
+    // 只存储FollowedPoint列表，不存储整个WeatherCardFollowedWeather对象
+    final pointsToStore = newPoints.map((e) => e.point).toList();
+    final newPointsJson = jsonEncode(pointsToStore);
+    await StorageUtils.instance.setString(StorageKeys.followedWeatherPoints, newPointsJson);
+    state = state.copyWith(
+        weatherFollowedState:
+            WeatherCardFollowedState(loadingStatus: LoadingStatus.success, followedWeather: newPoints));
+  }
+
+  /// 删除关注点
+  Future<void> deleteFollowedPoint(String uniqueId) async {
+    List<WeatherCardFollowedWeather>? followedWeatherList = state.weatherFollowedState.followedWeather ?? [];
+    final newPoints = followedWeatherList.where((e) => e.point.uniqueId != uniqueId).toList();
+    // 只存储FollowedPoint列表，不存储整个WeatherCardFollowedWeather对象
+    final pointsToStore = newPoints.map((e) => e.point).toList();
+    final newPointsJson = jsonEncode(pointsToStore);
+    await StorageUtils.instance.setString(StorageKeys.followedWeatherPoints, newPointsJson);
+    state = state.copyWith(
+        weatherFollowedState:
+            WeatherCardFollowedState(loadingStatus: LoadingStatus.success, followedWeather: newPoints));
+  }
+
+  /// 刷新关注点列表
+  Future<void> refreshFollowedPoints(List<WeatherCardFollowedWeather> points) async {
+    // 只存储FollowedPoint列表，不存储整个WeatherCardFollowedWeather对象
+    final pointsToStore = points.map((e) => e.point).toList();
+    final newPointsJson = jsonEncode(pointsToStore);
+    await StorageUtils.instance.setString(StorageKeys.followedWeatherPoints, newPointsJson);
+    state = state.copyWith(
+        weatherFollowedState: WeatherCardFollowedState(loadingStatus: LoadingStatus.success, followedWeather: points));
+  }
+
+  /// 切换展开状态
+  void toggleExpandedState() {
+    state = state.copyWith(isExpanded: !state.isExpanded);
+  }
 }

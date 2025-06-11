@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:precious_life/app/routes/route_constants.dart';
+import 'package:precious_life/core/utils/log/log_utils.dart';
 import 'package:precious_life/features/todo/data/models/weather_card_state.dart';
 import 'package:precious_life/features/todo/ui/providers/weather_card_vm.dart';
 import 'package:precious_life/shared/widgets/loading_status_widget.dart';
@@ -193,7 +194,7 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
   /// 构建展开/收起按钮
   Widget _buildExpandButton(weatherState) => Center(
         child: InkWell(
-          onTap: () => {},
+          onTap: () => _weatherCardVm.toggleExpandedState(),
           borderRadius: BorderRadius.circular(8),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 16),
@@ -229,7 +230,7 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
     if (points.isEmpty) {
       return GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: () => {},
+        onTap: () => GoRouter.of(context).push(AppRoutes.weatherFollowedSettings),
         child: Container(
           padding: const EdgeInsets.all(2.0),
           alignment: Alignment.center,
@@ -274,11 +275,10 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
               child: GestureDetector(
                 // 点击跳转到天气详情页，传递城市代码而不是索引
                 onTap: () {
-                  print('🚀 weather_card点击城市: ${pointWeather.point.poiName ?? pointWeather.point.name ?? ''}, code: ${pointWeather.point.code}');
-                  GoRouter.of(context).push('${AppRoutes.weatherDetail}?cityCode=${pointWeather.point.code}');
+                  CPLog.d("跳转天气详情，点击项信息：${pointWeather.point.toJson()}");
                 },
                 // 长按跳转到城市设置页
-                onLongPress: () => {},
+                onLongPress: () => GoRouter.of(context).push(AppRoutes.weatherFollowedSettings),
                 child: _buildFollowedWeatherItem(pointWeather),
               ),
             ),
@@ -333,14 +333,36 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
                     ),
                     const SizedBox(width: 2),
                     Expanded(
-                      child: Text(
-                        point.poiName  ?? '',
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            // 根据poiName是否为空决定显示内容
+                            (point.poiName == null || point.poiName!.isEmpty) 
+                              ? (point.city ?? '未知城市')
+                              : point.poiName!,
+                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            // 根据poiName是否为空决定显示内容
+                            (point.poiName == null || point.poiName!.isEmpty)
+                              ? (point.district ?? '未知区县')
+                              : (point.poiAddress ?? '未知地址'),
+                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              fontSize: 9,
+                              color: Theme.of(context).colorScheme.primary.withOpacity(0.7),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -384,7 +406,7 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
                       shape: BoxShape.circle,
                     ),
                     child: IconButton(
-                      onPressed: () => {},
+                      onPressed: () async => await _weatherCardVm.getFollowedWeather(point),
                       icon: const Icon(Icons.refresh),
                       iconSize: 14,
                       padding: EdgeInsets.zero,

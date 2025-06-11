@@ -167,4 +167,7 @@ class StorageKeys {
 
   /// 天地图API Key
   static const String tiandituApiKey = 'tianditu_api_key';
+
+  /// 关注天气的点列表
+  static const String followedWeatherPoints = 'followed_weather_points';
 }

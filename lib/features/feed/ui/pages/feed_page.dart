@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:precious_life/core/utils/screen_utils.dart';
+import 'package:precious_life/core/utils/cp_screen.dart';
+import 'package:precious_life/config/text_style.dart';
 
 /// 信息流页面
 /// 显示用户的信息流内容，包括文章、动态等
@@ -21,7 +22,7 @@ class _FeedPageState extends ConsumerState<FeedPage> with AutomaticKeepAliveClie
     super.build(context); // 必须调用super.build
     return Scaffold(
       body: Padding(
-        padding: EdgeInsets.all(ScreenUtils.widgetEdgeDistance),
+        padding: EdgeInsets.all(CPScreen.widgetEdgeDistance),
         child: Container(
           color: Colors.blue,
         ),

@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import '../../../utils/log/log_utils.dart';
+import '../../../utils/cp_log.dart';
 import '../../api_client.dart';
 import 'package:precious_life/config/app_config.dart';
 import 'package:precious_life/core/network/api_exception.dart';

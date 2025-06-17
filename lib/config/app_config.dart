@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:precious_life/core/utils/storage_utils.dart';
+import 'package:precious_life/core/utils/cp_storage.dart';
 
 /// 应用配置类
 /// 管理应用的全局配置信息
@@ -26,7 +26,7 @@ class AppConfig {
 
     // 从存储中加载天气API Key
     try {
-      final savedApiKey = await StorageUtils.instance.getString(StorageKeys.weatherApiKey);
+      final savedApiKey = await CPStorage.instance.getString(StorageKeys.weatherApiKey);
 
       if (savedApiKey != null && savedApiKey.isNotEmpty) {
         qweatherApiKey = savedApiKey;

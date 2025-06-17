@@ -1,8 +1,8 @@
 import 'package:precious_life/config/app_config.dart';
 import 'package:precious_life/core/network/api/tianditu/tianditu_api_client.dart';
 import 'package:precious_life/core/network/api/tianditu/tianditu_api_model.dart';
-import 'package:precious_life/core/utils/storage_utils.dart';
-import '../../../utils/log/log_utils.dart';
+import 'package:precious_life/core/utils/cp_storage.dart';
+import '../../../utils/cp_log.dart';
 
 /// 天地图API服务类
 /// 提供地理编码和逆地理编码功能
@@ -22,7 +22,7 @@ class TiandituApiService {
       if (AppConfig.tiandituApiKey.isNotEmpty) return true;
       
       // 2. 再检查存储中是否配置
-      final savedApiKey = await StorageUtils.instance.getString(StorageKeys.tiandituApiKey);
+      final savedApiKey = await CPStorage.instance.getString(StorageKeys.tiandituApiKey);
       if (savedApiKey != null && savedApiKey.isNotEmpty) {
         // 如果存储中有API Key，更新内存中的配置
         AppConfig.tiandituApiKey = savedApiKey;

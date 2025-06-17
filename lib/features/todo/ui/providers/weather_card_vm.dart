@@ -5,8 +5,8 @@ import 'package:precious_life/config/app_config.dart';
 import 'package:precious_life/core/network/api/qweather/qweather_api_model.dart';
 import 'package:precious_life/core/network/api/qweather/qweather_api_service.dart';
 import 'package:precious_life/core/network/api/tianditu/tianditu_api_service.dart';
-import 'package:precious_life/core/utils/location_utils.dart';
-import 'package:precious_life/core/utils/storage_utils.dart';
+import 'package:precious_life/core/utils/cp_location.dart';
+import 'package:precious_life/core/utils/cp_storage.dart';
 import 'package:precious_life/features/todo/data/models/weather_card_state.dart';
 import 'package:precious_life/features/todo/ui/models/followed_point.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -191,7 +191,7 @@ class WeatherCardVm extends _$WeatherCardVm {
   Future<void> loadFollowedWeather() async {
     state = state.copyWith(weatherFollowedState: const WeatherCardFollowedState(loadingStatus: LoadingStatus.loading));
     // 读取SP里的数据
-    final followedPointsJson = await StorageUtils.instance.getString(StorageKeys.followedWeatherPoints);
+    final followedPointsJson = await CPStorage.instance.getString(StorageKeys.followedWeatherPoints);
     if (followedPointsJson == null || followedPointsJson.isEmpty) {
       state = state.copyWith(
           weatherFollowedState:
@@ -273,7 +273,7 @@ class WeatherCardVm extends _$WeatherCardVm {
       // 保存到本地存储
       final pointsToStore = finalList.map((e) => e.point).toList();
       final newPointsJson = jsonEncode(pointsToStore);
-      await StorageUtils.instance.setString(StorageKeys.followedWeatherPoints, newPointsJson);
+      await CPStorage.instance.setString(StorageKeys.followedWeatherPoints, newPointsJson);
       
       state = state.copyWith(
         weatherFollowedState: WeatherCardFollowedState(
@@ -316,7 +316,7 @@ class WeatherCardVm extends _$WeatherCardVm {
     // 只存储FollowedPoint列表，不存储整个WeatherCardFollowedWeather对象
     final pointsToStore = newPoints.map((e) => e.point).toList();
     final newPointsJson = jsonEncode(pointsToStore);
-    await StorageUtils.instance.setString(StorageKeys.followedWeatherPoints, newPointsJson);
+    await CPStorage.instance.setString(StorageKeys.followedWeatherPoints, newPointsJson);
     state = state.copyWith(
         weatherFollowedState:
             WeatherCardFollowedState(loadingStatus: LoadingStatus.success, followedWeather: newPoints));
@@ -329,7 +329,7 @@ class WeatherCardVm extends _$WeatherCardVm {
     // 只存储FollowedPoint列表，不存储整个WeatherCardFollowedWeather对象
     final pointsToStore = newPoints.map((e) => e.point).toList();
     final newPointsJson = jsonEncode(pointsToStore);
-    await StorageUtils.instance.setString(StorageKeys.followedWeatherPoints, newPointsJson);
+    await CPStorage.instance.setString(StorageKeys.followedWeatherPoints, newPointsJson);
     state = state.copyWith(
         weatherFollowedState:
             WeatherCardFollowedState(loadingStatus: LoadingStatus.success, followedWeather: newPoints));
@@ -340,7 +340,7 @@ class WeatherCardVm extends _$WeatherCardVm {
     // 只存储FollowedPoint列表，不存储整个WeatherCardFollowedWeather对象
     final pointsToStore = points.map((e) => e.point).toList();
     final newPointsJson = jsonEncode(pointsToStore);
-    await StorageUtils.instance.setString(StorageKeys.followedWeatherPoints, newPointsJson);
+    await CPStorage.instance.setString(StorageKeys.followedWeatherPoints, newPointsJson);
     state = state.copyWith(
         weatherFollowedState: WeatherCardFollowedState(loadingStatus: LoadingStatus.success, followedWeather: points));
   }

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:precious_life/config/color_style.dart';
 import 'package:precious_life/config/text_style.dart';
-import 'package:precious_life/core/utils/storage_utils.dart';
+import 'package:precious_life/core/utils/cp_storage.dart';
 import 'package:precious_life/config/app_config.dart';
 
 /// 天气工具类
 /// 统一处理天气相关的图标、颜色、文本等逻辑
-class WeatherUtils {
-  WeatherUtils._();
+class CPWeather {
+  CPWeather._();
 
   /// 检查天气API Key是否已配置
   /// 
@@ -15,7 +15,7 @@ class WeatherUtils {
   static Future<bool> isWeatherApiKeyConfigured() async {
     try {
       // 从存储中获取保存的API Key
-      final savedApiKey = await StorageUtils.instance.getString(StorageKeys.weatherApiKey);
+      final savedApiKey = await CPStorage.instance.getString(StorageKeys.weatherApiKey);
       
       // 优先使用存储中的API Key
       if (savedApiKey != null && savedApiKey.isNotEmpty) {
@@ -28,7 +28,7 @@ class WeatherUtils {
       
       // 如果存储中没有，但AppConfig中有（可能是初始化时设置的默认值）
       if (AppConfig.qweatherApiKey.isNotEmpty) {
-        await StorageUtils.instance.setString(StorageKeys.weatherApiKey, AppConfig.qweatherApiKey);
+        await CPStorage.instance.setString(StorageKeys.weatherApiKey, AppConfig.qweatherApiKey);
         return true;
       }
       

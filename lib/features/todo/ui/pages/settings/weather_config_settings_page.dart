@@ -5,9 +5,9 @@ import 'package:precious_life/config/app_config.dart';
 import 'package:precious_life/config/color_style.dart';
 import 'package:precious_life/config/text_style.dart';
 import 'package:precious_life/core/network/api/qweather/qweather_api_service.dart';
-import 'package:precious_life/core/utils/storage_utils.dart';
+import 'package:precious_life/core/utils/cp_storage.dart';
 import 'package:precious_life/features/todo/ui/providers/weather_card_vm.dart';
-import '../../../../../core/utils/log/log_utils.dart';
+import '../../../../../core/utils/cp_log.dart';
 
 /// 天气配置设置页面
 /// 用于配置和风天气API Key
@@ -41,7 +41,7 @@ class _WeatherConfigSettingsPageState extends ConsumerState<WeatherConfigSetting
       setState(() => _isLoading = true);
 
       // 从存储中获取API Key，如果没有则使用默认值
-      final savedApiKey = await StorageUtils.instance.getString(StorageKeys.weatherApiKey);
+      final savedApiKey = await CPStorage.instance.getString(StorageKeys.weatherApiKey);
       final currentApiKey = savedApiKey ?? AppConfig.qweatherApiKey;
 
       _apiKeyController.text = currentApiKey;
@@ -73,7 +73,7 @@ class _WeatherConfigSettingsPageState extends ConsumerState<WeatherConfigSetting
 
       if (response.code == '200') {
         // API Key有效，保存到本地存储
-        await StorageUtils.instance.setString(StorageKeys.weatherApiKey, apiKey);
+        await CPStorage.instance.setString(StorageKeys.weatherApiKey, apiKey);
 
         // 确保AppConfig中的API Key保持更新状态
         AppConfig.qweatherApiKey = apiKey;
@@ -87,7 +87,7 @@ class _WeatherConfigSettingsPageState extends ConsumerState<WeatherConfigSetting
       }
     } catch (e) {
       // 发生异常，恢复原始API Key
-      final savedApiKey = await StorageUtils.instance.getString(StorageKeys.weatherApiKey);
+      final savedApiKey = await CPStorage.instance.getString(StorageKeys.weatherApiKey);
       AppConfig.qweatherApiKey = savedApiKey ?? AppConfig.qweatherApiKey;
 
       _showAlert('验证失败', '无法验证API Key，请检查网络连接后重试。\n错误信息: ${e.toString()}');

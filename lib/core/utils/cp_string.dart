@@ -3,19 +3,15 @@ import 'package:flutter/material.dart';
 
 /// 字符串工具类
 /// 提供对字符串进行操作的实用方法
-class StringUtil {
+class CPString {
   // 私有构造函数，防止外部实例化
-  StringUtil._();
+  CPString._();
   
   /// 判断字符串是否为空或仅包含空白字符
-  static bool isNullOrEmpty(String? str) {
-    return str == null || str.trim().isEmpty;
-  }
+  static bool isNullOrEmpty(String? str) => str == null || str.trim().isEmpty;
   
   /// 判断字符串是否不为空
-  static bool isNotNullOrEmpty(String? str) {
-    return !isNullOrEmpty(str);
-  }
+  static bool isNotNullOrEmpty(String? str) => !isNullOrEmpty(str);
   
   /// 截断字符串至指定长度，并加上省略号
   static String truncate(String text, int maxLength, {String ellipsis = '...'}) {
@@ -32,20 +28,16 @@ class StringUtil {
   }
   
   /// 将驼峰命名转换为下划线命名
-  static String camelToSnake(String text) {
-    return text.replaceAllMapped(
-      RegExp(r'[A-Z]'),
-      (match) => '_${match.group(0)!.toLowerCase()}',
-    );
-  }
+  static String camelToSnake(String text) => text.replaceAllMapped(
+    RegExp(r'[A-Z]'),
+    (match) => '_${match.group(0)!.toLowerCase()}',
+  );
   
   /// 将下划线命名转换为驼峰命名
-  static String snakeToCamel(String text) {
-    return text.replaceAllMapped(
-      RegExp(r'_([a-z])'),
-      (match) => match.group(1)!.toUpperCase(),
-    );
-  }
+  static String snakeToCamel(String text) => text.replaceAllMapped(
+    RegExp(r'_([a-z])'),
+    (match) => match.group(1)!.toUpperCase(),
+  );
   
   /// 隐藏敏感信息（如手机号、邮箱等）
   static String maskSensitiveInfo(String text, {int visibleStart = 3, int visibleEnd = 4, String mask = '*'}) {
@@ -72,9 +64,7 @@ class StringUtil {
   }
   
   /// 获取字符串中的数字部分
-  static String getNumbers(String text) {
-    return text.replaceAll(RegExp(r'[^0-9]'), '');
-  }
+  static String getNumbers(String text) => text.replaceAll(RegExp(r'[^0-9]'), '');
   
   /// 检查字符串是否为有效电子邮件格式
   static bool isValidEmail(String email) {
@@ -127,6 +117,4 @@ double log(num x, [num? base]) {
   }
 }
 
-double pow(num x, num exponent) {
-  return math.pow(x, exponent).toDouble();
-} 
+double pow(num x, num exponent) => math.pow(x, exponent).toDouble(); 

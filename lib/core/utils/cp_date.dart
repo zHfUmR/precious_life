@@ -2,9 +2,9 @@ import 'package:intl/intl.dart';
 
 /// 日期工具类
 /// 提供处理日期和时间的实用方法
-class DateUtil {
+class CPDate {
   // 私有构造函数，防止外部实例化
-  DateUtil._();
+  CPDate._();
   
   /// 标准日期格式
   static final DateFormat _standardDateFormat = DateFormat('yyyy-MM-dd');
@@ -19,24 +19,16 @@ class DateUtil {
   static final DateFormat _friendlyDateFormat = DateFormat('yyyy年M月d日');
   
   /// 格式化为标准日期字符串 (yyyy-MM-dd)
-  static String formatStandardDate(DateTime date) {
-    return _standardDateFormat.format(date);
-  }
+  static String formatStandardDate(DateTime date) => _standardDateFormat.format(date);
   
   /// 格式化为标准时间字符串 (HH:mm:ss)
-  static String formatStandardTime(DateTime date) {
-    return _standardTimeFormat.format(date);
-  }
+  static String formatStandardTime(DateTime date) => _standardTimeFormat.format(date);
   
   /// 格式化为标准日期时间字符串 (yyyy-MM-dd HH:mm:ss)
-  static String formatStandardDateTime(DateTime date) {
-    return _standardDateTimeFormat.format(date);
-  }
+  static String formatStandardDateTime(DateTime date) => _standardDateTimeFormat.format(date);
   
   /// 格式化为友好日期字符串 (yyyy年M月d日)
-  static String formatFriendlyDate(DateTime date) {
-    return _friendlyDateFormat.format(date);
-  }
+  static String formatFriendlyDate(DateTime date) => _friendlyDateFormat.format(date);
   
   /// 格式化为相对时间（如：刚刚、5分钟前、1小时前等）
   static String formatRelativeTime(DateTime date) {
@@ -73,14 +65,10 @@ class DateUtil {
   }
   
   /// 获取指定日期所在月的起始日期
-  static DateTime getMonthStart(DateTime date) {
-    return DateTime(date.year, date.month, 1);
-  }
+  static DateTime getMonthStart(DateTime date) => DateTime(date.year, date.month, 1);
   
   /// 获取指定日期所在月的结束日期
-  static DateTime getMonthEnd(DateTime date) {
-    return DateTime(date.year, date.month + 1, 0);
-  }
+  static DateTime getMonthEnd(DateTime date) => DateTime(date.year, date.month + 1, 0);
   
   /// 检查日期是否为今天
   static bool isToday(DateTime date) {

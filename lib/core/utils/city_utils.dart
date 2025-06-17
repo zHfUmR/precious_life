@@ -1,5 +1,5 @@
 import 'package:flutter/services.dart' show rootBundle;
-import 'log/log_utils.dart';
+import 'cp_log.dart';
 
 /// 城市信息实体类
 class CityInfo {

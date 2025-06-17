@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:precious_life/core/utils/screen_utils.dart';
+import 'package:precious_life/core/utils/cp_screen.dart';
+import 'package:precious_life/features/todo/ui/widgets/countdown_module.dart';
 import 'package:precious_life/features/todo/ui/widgets/dashboard_module.dart';
 import 'package:precious_life/features/todo/ui/widgets/weather_card.dart';
 
@@ -21,7 +22,7 @@ class _TodoPageState extends ConsumerState<TodoPage> with AutomaticKeepAliveClie
   Widget build(BuildContext context) {
     super.build(context); // 必须调用super.build
     return Padding(
-      padding: EdgeInsets.all(ScreenUtils.widgetEdgeDistance),
+      padding: EdgeInsets.all(CPScreen.widgetEdgeDistance),
       child: const Column(children: [
         WeatherCard(),
         DashboardModule(),

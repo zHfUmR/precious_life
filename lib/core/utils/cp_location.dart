@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:geolocator/geolocator.dart';
-import 'log/log_utils.dart';
+import 'cp_log.dart';
 
 /// 位置工具类
 /// 提供获取设备当前位置的功能

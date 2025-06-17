@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:precious_life/app/routes/route_constants.dart';
 import 'package:precious_life/config/color_style.dart';
-import 'package:precious_life/core/utils/screen_utils.dart';
+import 'package:precious_life/config/text_style.dart';
+import 'package:precious_life/core/utils/cp_screen.dart';
 
 /// 工具页面
 class ToolsPage extends ConsumerStatefulWidget {
@@ -24,7 +26,7 @@ class _ToolsPageState extends ConsumerState<ToolsPage> with AutomaticKeepAliveCl
     return Scaffold(
       backgroundColor: CPColors.transparent,
       body: GridView.builder(
-        padding: EdgeInsets.all(ScreenUtils.widgetEdgeDistance),
+        padding: EdgeInsets.all(CPScreen.widgetEdgeDistance),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           crossAxisSpacing: 16,

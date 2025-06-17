@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import '../utils/log/log_utils.dart';
+import '../utils/cp_log.dart';
 
 /// 自定义请求异常父类
 class ApiException implements Exception {

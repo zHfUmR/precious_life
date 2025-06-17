@@ -4,9 +4,9 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:precious_life/config/color_style.dart';
 import 'package:precious_life/config/text_style.dart';
-import 'package:precious_life/core/utils/screen_utils.dart';
 import 'package:precious_life/features/todo/ui/providers/home_time_vm.dart';
 import 'package:precious_life/features/todo/ui/widgets/countdown_module.dart';
+import 'package:precious_life/core/utils/cp_screen.dart';
 
 class DashboardModule extends ConsumerStatefulWidget {
   const DashboardModule({super.key});
@@ -41,8 +41,8 @@ class _DashboardModuleState extends ConsumerState<DashboardModule> with SingleTi
   Widget build(BuildContext context) {
     _timeModuleVm = ref.read(homeTimeVmProvider.notifier);
     return SizedBox(
-        height: ScreenUtils.smallWidghtWidth,
-        width: ScreenUtils.largeWidghtWidth,
+        height: CPScreen.smallWidghtWidth,
+        width: CPScreen.largeWidghtWidth,
         child: Container(
             padding: const EdgeInsets.all(5.0),
             decoration: BoxDecoration(

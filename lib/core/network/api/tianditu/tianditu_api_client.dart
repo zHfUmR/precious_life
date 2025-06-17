@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:precious_life/config/app_config.dart';
 import 'package:precious_life/core/network/api_client.dart';
 import 'package:precious_life/core/network/api_exception.dart';
-import '../../../utils/log/log_utils.dart';
+import '../../../utils/cp_log.dart';
 
 /// 天地图API客户端
 /// 负责天地图API的请求处理，使用单例模式

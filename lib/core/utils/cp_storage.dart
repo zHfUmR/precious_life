@@ -1,13 +1,13 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'log/log_utils.dart';
+import 'cp_log.dart';
 
 /// 本地存储工具类
 /// 封装SharedPreferences的常用操作
-class StorageUtils {
-  StorageUtils._();
-  static final StorageUtils _instance = StorageUtils._();
-  static StorageUtils get instance => _instance;
+class CPStorage {
+  CPStorage._();
+  static final CPStorage _instance = CPStorage._();
+  static CPStorage get instance => _instance;
 
   SharedPreferences? _prefs;
 

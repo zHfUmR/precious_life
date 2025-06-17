@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'app/app.dart';
-import 'config/app_config.dart';
-import 'core/utils/storage_utils.dart';
+import 'package:precious_life/app/app.dart';
+import 'core/utils/cp_storage.dart';
 
 void main() async {
   // 确保Flutter绑定初始化
@@ -13,10 +12,8 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  // 初始化应用配置
-  await AppConfig.initialize();
-  // 初始化本地存储
-  await StorageUtils.instance.init();
+  // 初始化存储工具类，确保在使用前完成初始化
+  await CPStorage.instance.init();
   // 运行应用
   runApp(const ProviderScope(child: App()));
 }

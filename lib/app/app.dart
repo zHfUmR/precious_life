@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:precious_life/app/routes/app_router.dart';
-import 'package:precious_life/core/utils/screen_utils.dart';
+import 'package:precious_life/core/utils/cp_screen.dart';
 import 'package:precious_life/config/theme/app_theme.dart';
 import 'package:precious_life/config/theme/theme_provider.dart';
 
@@ -19,6 +19,10 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // 初始化屏幕工具类
+      CPScreen.initialize(context);
+    });
   }
 
   @override
@@ -53,9 +57,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
     final currentTheme = ref.watch(themeNotifierProvider);
-
-    // 初始化屏幕工具类
-    ScreenUtils.initialize(context);
 
     return MediaQuery(
       // 设置文字大小不随系统设置变化

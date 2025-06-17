@@ -2,7 +2,7 @@
 // import 'package:flutter_riverpod/flutter_riverpod.dart';
 // import 'package:precious_life/core/network/api/qweather/qweather_api_model.dart';
 // import 'package:precious_life/core/network/api/qweather/qweather_api_service.dart';
-// import 'package:precious_life/core/utils/weather_utils.dart';
+// import 'package:precious_life/core/utils/cp_weather.dart';
 // import 'package:precious_life/features/todo/ui/models/followed_city.dart';
 
 // /// 天气信息页面组件
@@ -314,7 +314,7 @@
 
 //   /// 构建动态渐变背景
 //   Widget _buildDynamicBackground() {
-//     final colors = WeatherUtils.getWeatherGradientColors(_currentWeather?.icon);
+//     final colors = CPWeather.getWeatherGradientColors(_currentWeather?.icon);
     
 //     return AnimatedBuilder(
 //       animation: _pulseAnimation,
@@ -600,7 +600,7 @@
 //                                 builder: (context, child) {
 //                                   return Transform.translate(
 //                                     offset: Offset(0, _floatingAnimation.value * 0.3),
-//                                     child: WeatherUtils.getWeatherIcon(_currentWeather?.icon, 45, defaultColor: Colors.white),
+//                                     child: CPWeather.getWeatherIcon(_currentWeather?.icon, 45, defaultColor: Colors.white),
 //                                   );
 //                                 },
 //                               ),
@@ -817,10 +817,10 @@
 //         margin: const EdgeInsets.only(bottom: 12),
 //         padding: const EdgeInsets.all(16),
 //         decoration: BoxDecoration(
-//           color: WeatherUtils.getWarningColor(warning.severityColor).withOpacity(0.15),
+//           color: CPWeather.getWarningColor(warning.severityColor).withOpacity(0.15),
 //           borderRadius: BorderRadius.circular(16),
 //           border: Border.all(
-//             color: WeatherUtils.getWarningColor(warning.severityColor).withOpacity(0.3),
+//             color: CPWeather.getWarningColor(warning.severityColor).withOpacity(0.3),
 //             width: 1,
 //           ),
 //         ),
@@ -830,7 +830,7 @@
 //             // 警告图标
 //             Icon(
 //               Icons.warning_amber_rounded,
-//               color: WeatherUtils.getWarningColor(warning.severityColor),
+//               color: CPWeather.getWarningColor(warning.severityColor),
 //               size: 20,
 //             ),
 //             const SizedBox(width: 12),
@@ -911,7 +911,7 @@
 //   /// 构建每日预报项
 //   Widget _buildDailyForecastItem(QweatherDaily day) {
 //     final date = DateTime.tryParse(day.fxDate ?? '');
-//     final dayName = WeatherUtils.getDayName(date);
+//     final dayName = CPWeather.getDayName(date);
     
 //     return Container(
 //       margin: const EdgeInsets.only(bottom: 15),
@@ -930,7 +930,7 @@
 //             ),
 //           ),
 //           // 天气图标
-//           WeatherUtils.getWeatherIcon(day.iconDay, 24, defaultColor: Colors.white),
+//           CPWeather.getWeatherIcon(day.iconDay, 24, defaultColor: Colors.white),
 //           const SizedBox(width: 15),
 //           // 天气描述
 //           Expanded(
@@ -964,7 +964,7 @@
 //   /// 构建更新时间
 //   Widget _buildUpdateTime() => Center(
 //         child: Text(
-//           '更新时间: ${WeatherUtils.formatUpdateTime(_currentWeather?.obsTime)}',
+//           '更新时间: ${CPWeather.formatUpdateTime(_currentWeather?.obsTime)}',
 //           style: TextStyle(
 //             color: Colors.white.withOpacity(0.7),
 //             fontSize: 12,
@@ -1122,7 +1122,7 @@
 
 //   /// 构建单个逐小时预报项 - 垂直布局，修复宽度越界
 //   Widget _buildHourlyForecastItem(QweatherHourly hourly) {
-//     final time = WeatherUtils.formatHourlyTime(hourly.fxTime);
+//     final time = CPWeather.formatHourlyTime(hourly.fxTime);
     
 //     return Container(
 //       margin: const EdgeInsets.only(bottom: 8),
@@ -1151,7 +1151,7 @@
 //           ),
 //           const SizedBox(width: 8),
 //           // 天气图标
-//           WeatherUtils.getWeatherIcon(hourly.icon, 18, defaultColor: Colors.white),
+//           CPWeather.getWeatherIcon(hourly.icon, 18, defaultColor: Colors.white),
 //           const Spacer(),
 //           // 温度
 //           Text(

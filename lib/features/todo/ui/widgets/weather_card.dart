@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:precious_life/app/routes/route_constants.dart';
-import 'package:precious_life/core/utils/log/log_utils.dart';
+import 'package:precious_life/core/utils/cp_log.dart';
 import 'package:precious_life/features/todo/data/models/weather_card_state.dart';
 import 'package:precious_life/features/todo/ui/providers/weather_card_vm.dart';
 import 'package:precious_life/shared/widgets/loading_status_widget.dart';
-import 'package:precious_life/core/utils/weather_utils.dart';
+import 'package:precious_life/core/utils/cp_weather.dart';
 
 /// 天气卡片组件
 class WeatherCard extends ConsumerStatefulWidget {
@@ -131,7 +131,7 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
         Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            WeatherUtils.getWeatherIcon(weather?.icon, 16),
+            CPWeather.getWeatherIcon(weather?.icon, 16),
             Text(
               weather?.text ?? '未知',
               style: Theme.of(context).textTheme.labelSmall,
@@ -382,7 +382,7 @@ class _WeatherCardState extends ConsumerState<WeatherCard> {
               Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  WeatherUtils.getWeatherIcon(weather?.icon, 14),
+                  CPWeather.getWeatherIcon(weather?.icon, 14),
                   Text(
                     weather?.text ?? '未知',
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(

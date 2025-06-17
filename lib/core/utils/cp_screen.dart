@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// 屏幕工具类
 /// 提供获取屏幕尺寸、屏幕适配等功能
-class ScreenUtils {
+class CPScreen {
   // 私有构造函数，防止外部实例化
-  ScreenUtils._();
+  CPScreen._();
 
   // 屏幕宽度
   static double _screenWidth = 0;
@@ -78,24 +78,24 @@ class ScreenUtils {
 }
 
 /// 使用Riverpod提供屏幕尺寸信息的Provider
-final screenUtilsProvider = Provider<ScreenUtilsNotifier>((ref) {
-  return ScreenUtilsNotifier();
+final cpScreenProvider = Provider<CPScreenNotifier>((ref) {
+  return CPScreenNotifier();
 });
 
 /// 屏幕尺寸信息的Notifier类
-class ScreenUtilsNotifier {
+class CPScreenNotifier {
 
   void initialize(BuildContext context) {
-    ScreenUtils.initialize(context);
+    CPScreen.initialize(context);
   }
 
-  double get screenWidth => ScreenUtils.screenWidth;
-  double get screenHeight => ScreenUtils.screenHeight;
-  double get statusBarHeight => ScreenUtils.statusBarHeight;
-  double get bottomBarHeight => ScreenUtils.bottomBarHeight;
-  double get screenContentHeight => ScreenUtils.screenContentHeight;
-  double get smallWidghtWidth => ScreenUtils.smallWidghtWidth;
-  double get largeWidghtWidth => ScreenUtils.largeWidghtWidth;
-  double getWidthByPercent(double percent) => ScreenUtils.getWidthByPercent(percent);
-  double getHeightByPercent(double percent) => ScreenUtils.getHeightByPercent(percent);
+  double get screenWidth => CPScreen.screenWidth;
+  double get screenHeight => CPScreen.screenHeight;
+  double get statusBarHeight => CPScreen.statusBarHeight;
+  double get bottomBarHeight => CPScreen.bottomBarHeight;
+  double get screenContentHeight => CPScreen.screenContentHeight;
+  double get smallWidghtWidth => CPScreen.smallWidghtWidth;
+  double get largeWidghtWidth => CPScreen.largeWidghtWidth;
+  double getWidthByPercent(double percent) => CPScreen.getWidthByPercent(percent);
+  double getHeightByPercent(double percent) => CPScreen.getHeightByPercent(percent);
 }

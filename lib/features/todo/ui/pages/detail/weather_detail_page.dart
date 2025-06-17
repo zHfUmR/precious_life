@@ -2,10 +2,10 @@
 // import 'package:flutter_riverpod/flutter_riverpod.dart';
 // import 'package:go_router/go_router.dart';
 // import 'package:precious_life/config/text_style.dart';
-// import 'package:precious_life/core/utils/storage_utils.dart';
+// import 'package:precious_life/core/utils/cp_storage.dart';
 // import 'package:precious_life/features/todo/ui/models/followed_point.dart';
 // import 'package:precious_life/features/todo/ui/pages/detail/weather_info_page.dart';
-// import '../../../../../core/utils/log/log_utils.dart';
+// import '../../../../../core/utils/log/cp_log.dart';
 
 // /// 天气详情页面
 // /// 全屏显示，包含定位城市和关注城市的天气详情
@@ -72,7 +72,7 @@
 //       }
 
 //       // 添加关注的城市
-//       final citiesData = await StorageUtils.instance.getObjectList(StorageKeys.followedPoints);
+//       final citiesData = await CPStorage.instance.getObjectList(StorageKeys.followedPoints);
 //       if (citiesData != null) {
 //         final followedCities = citiesData.map((data) => FollowedPoint.fromJson(data)).toList();
 //         followedCities.sort((a, b) => a.order.compareTo(b.order));

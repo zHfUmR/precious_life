@@ -3,7 +3,7 @@ import 'package:precious_life/core/network/api/qweather/qweather_api_model.dart'
 import 'package:precious_life/features/todo/ui/models/followed_point.dart';
 import 'package:precious_life/shared/widgets/loading_status_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:precious_life/core/utils/weather_utils.dart';
+import 'package:precious_life/core/utils/cp_weather.dart';
 
 part 'weather_card_state.freezed.dart';
 
@@ -69,10 +69,10 @@ class WeatherCardFollowedWeather with _$WeatherCardFollowedWeather {
 extension WeatherCardStateExt on WeatherCardState {
   /// 获取格式化后的更新时间
   /// 将obsTime格式化为HH:mm格式
-  String get updateTime => WeatherUtils.formatUpdateTime(weatherLocationState.currentWeather?.obsTime);
+  String get updateTime => CPWeather.formatUpdateTime(weatherLocationState.currentWeather?.obsTime);
 
   /// 获取当前天气Text组件
   /// 根据天气代码返回对应的带颜色文本组件
   Text get weatherText =>
-      WeatherUtils.getWeatherText(weatherLocationState.currentWeather?.icon, weatherLocationState.currentWeather?.text);
+      CPWeather.getWeatherText(weatherLocationState.currentWeather?.icon, weatherLocationState.currentWeather?.text);
 }

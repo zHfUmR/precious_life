@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 class CPColors {
   /// 透明
   static const Color transparent = Color(0x00000000);
+
+  /// 灰色背景
+  static const Color greyBackground = Color(0xFFF5F5F5);
   
   /// 黑色
   static const Color black = Color(0xFF333333);
@@ -44,4 +47,7 @@ class CPColors {
   
   /// 倒计时进度条绿色渐变结束
   static const Color progressGreenEnd = Color(0xFFb9ff00);
+
+  /// 导航栏背景色
+  static const Color navigationBarBackground = Color(0xFFF5F5F5);
 } 

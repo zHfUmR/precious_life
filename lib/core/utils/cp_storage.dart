@@ -4,10 +4,10 @@ import 'cp_log.dart';
 
 /// 本地存储工具类
 /// 封装SharedPreferences的常用操作
-class CPStorage {
-  CPStorage._();
-  static final CPStorage _instance = CPStorage._();
-  static CPStorage get instance => _instance;
+class CPSP {
+  CPSP._();
+  static final CPSP _instance = CPSP._();
+  static CPSP get instance => _instance;
 
   SharedPreferences? _prefs;
 

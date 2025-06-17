@@ -13,7 +13,7 @@ void main() async {
     DeviceOrientation.portraitDown,
   ]);
   // 初始化存储工具类，确保在使用前完成初始化
-  await CPStorage.instance.init();
+  await CPSP.instance.init();
   // 运行应用
   runApp(const ProviderScope(child: App()));
 }

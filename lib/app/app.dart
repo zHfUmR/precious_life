@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:precious_life/app/routes/app_router.dart';
+import 'package:precious_life/config/app_config.dart';
 import 'package:precious_life/core/utils/cp_screen.dart';
 import 'package:precious_life/config/theme/app_theme.dart';
 import 'package:precious_life/config/theme/theme_provider.dart';
@@ -20,7 +21,8 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // 初始化屏幕工具类
+      // 在此处初始化应用配置相关
+      AppConfig.initialize();
       CPScreen.initialize(context);
     });
   }
@@ -66,7 +68,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
         // 使用GoRouter进行路由管理
         routerConfig: router,
         debugShowCheckedModeBanner: false,
-
         // 🎨 使用蕾姆蓝/拉姆粉主题
         theme: AppTheme.getTheme(currentTheme),
       ),

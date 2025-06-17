@@ -7,16 +7,6 @@ class AppConfig {
   // 私有构造函数，防止外部实例化
   AppConfig._();
 
-  // 应用版本
-  static String appVersion = '1.0.0';
-
-  // API基础URL
-  static String apiBaseUrl = kDebugMode
-      ? 'https://api-dev.preciouslife.com/v1' // 开发环境
-      : 'https://api.preciouslife.com/v1'; // 生产环境
-
-  // 是否启用分析
-  static bool enableAnalytics = !kDebugMode;
 
   /// 初始化应用配置
   /// 在应用启动时调用
@@ -26,7 +16,7 @@ class AppConfig {
 
     // 从存储中加载天气API Key
     try {
-      final savedApiKey = await CPStorage.instance.getString(StorageKeys.weatherApiKey);
+      final savedApiKey = await CPSP.instance.getString(StorageKeys.weatherApiKey);
 
       if (savedApiKey != null && savedApiKey.isNotEmpty) {
         qweatherApiKey = savedApiKey;

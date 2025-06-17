@@ -72,7 +72,7 @@
 //       }
 
 //       // 添加关注的城市
-//       final citiesData = await CPStorage.instance.getObjectList(StorageKeys.followedPoints);
+    //       final citiesData = await CPSP.instance.getObjectList(StorageKeys.followedPoints);
 //       if (citiesData != null) {
 //         final followedCities = citiesData.map((data) => FollowedPoint.fromJson(data)).toList();
 //         followedCities.sort((a, b) => a.order.compareTo(b.order));

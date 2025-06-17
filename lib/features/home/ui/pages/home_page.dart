@@ -5,46 +5,58 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:precious_life/features/feed/ui/pages/feed_page.dart';
 import 'package:precious_life/features/todo/ui/pages/todo_page.dart';
 import 'package:precious_life/features/tools/ui/pages/tools_page.dart';
+import 'package:precious_life/shared/widgets/cp_bottom_navigation_bar.dart';
 
 /// 主页
-class HomePage extends ConsumerWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final pageController = PageController(initialPage: 1);
-    return SafeArea(
-        child: Stack(
-      fit: StackFit.expand,
-      children: [
-        // 背景图
-        Positioned.fill(
-          child: Image.asset('assets/images/bg.png', fit: BoxFit.cover),
-        ),
-        // 毛玻璃效果
-        BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-          child: ClipRect(
-            child: Container(
-              color: Colors.white.withOpacity(0.2),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-                child: Container(color: Colors.transparent),
-              ),
-            ),
-          ),
-        ),
-        // 页面内容
-        PageView(
-          controller: pageController,
-          onPageChanged: (index) {},
+  ConsumerState<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends ConsumerState<HomePage> {
+  int _currentIndex = 1; // 默认显示TodoPage
+
+  /// 处理底部导航栏点击事件
+  void _onBottomNavTap(int index) => setState(() => _currentIndex = index);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: IndexedStack(
+          index: _currentIndex,
           children: const [
             ToolsPage(),
             TodoPage(),
             FeedPage(),
           ],
         ),
-      ],
-    ));
+      ),
+      bottomNavigationBar: CpBottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: _onBottomNavTap,
+        selectedItemColor: Theme.of(context).primaryColor,
+        unselectedItemColor: Colors.grey,
+        items: const [
+          CpBottomNavItem(
+            icon: Icons.build_outlined,
+            activeIcon: Icons.build,
+            label: '工具',
+          ),
+          CpBottomNavItem(
+            icon: Icons.home_outlined,
+            activeIcon: Icons.home,
+            label: '首页',
+          ),
+          CpBottomNavItem(
+            icon: Icons.rss_feed_outlined,
+            activeIcon: Icons.rss_feed,
+            label: '探索',
+          ),
+        ],
+      ),
+    );
   }
 }

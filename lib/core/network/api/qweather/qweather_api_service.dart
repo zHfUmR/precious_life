@@ -15,7 +15,7 @@ class QweatherApiService {
       if (AppConfig.qweatherApiKey.isNotEmpty) return true;
       
       // 2. 再检查存储中是否配置
-      final savedApiKey = await CPStorage.instance.getString(StorageKeys.weatherApiKey);
+      final savedApiKey = await CPSP.instance.getString(StorageKeys.weatherApiKey);
       if (savedApiKey != null && savedApiKey.isNotEmpty) {
         // 如果存储中有API Key，更新内存中的配置
         AppConfig.qweatherApiKey = savedApiKey;

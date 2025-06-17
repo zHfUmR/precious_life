@@ -15,7 +15,7 @@ class CPWeather {
   static Future<bool> isWeatherApiKeyConfigured() async {
     try {
       // 从存储中获取保存的API Key
-      final savedApiKey = await CPStorage.instance.getString(StorageKeys.weatherApiKey);
+      final savedApiKey = await CPSP.instance.getString(StorageKeys.weatherApiKey);
       
       // 优先使用存储中的API Key
       if (savedApiKey != null && savedApiKey.isNotEmpty) {
@@ -28,7 +28,7 @@ class CPWeather {
       
       // 如果存储中没有，但AppConfig中有（可能是初始化时设置的默认值）
       if (AppConfig.qweatherApiKey.isNotEmpty) {
-        await CPStorage.instance.setString(StorageKeys.weatherApiKey, AppConfig.qweatherApiKey);
+                  await CPSP.instance.setString(StorageKeys.weatherApiKey, AppConfig.qweatherApiKey);
         return true;
       }
       

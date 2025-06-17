@@ -22,7 +22,7 @@ class TiandituApiService {
       if (AppConfig.tiandituApiKey.isNotEmpty) return true;
       
       // 2. 再检查存储中是否配置
-      final savedApiKey = await CPStorage.instance.getString(StorageKeys.tiandituApiKey);
+      final savedApiKey = await CPSP.instance.getString(StorageKeys.tiandituApiKey);
       if (savedApiKey != null && savedApiKey.isNotEmpty) {
         // 如果存储中有API Key，更新内存中的配置
         AppConfig.tiandituApiKey = savedApiKey;

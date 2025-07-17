@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:precious_life/config/color_style.dart';
 
-// 自定义底部导航栏项
+/// 自定义底部导航栏项
 class CpBottomNavItem {
   final IconData icon;
   final IconData activeIcon;
@@ -14,7 +13,7 @@ class CpBottomNavItem {
   });
 }
 
-// 自定义底部导航栏
+/// 自定义底部导航栏
 class CpBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
   final List<CpBottomNavItem> items;
@@ -33,6 +32,15 @@ class CpBottomNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
+    // 使用主题颜色或传入的自定义颜色
+    final selectedColor = selectedItemColor ?? colorScheme.primary;
+    final unselectedColor = unselectedItemColor ?? colorScheme.onSurface.withOpacity(0.6);
+    final backgroundColor = colorScheme.surface;
+    final labelColor = colorScheme.onSurface.withOpacity(0.8);
+
     return Container(
       height: 64,
       alignment: Alignment.bottomCenter,
@@ -47,17 +55,19 @@ class CpBottomNavigationBar extends StatelessWidget {
               child: SizedBox(
                 height: 64,
                 child: Stack(
-                  alignment: Alignment.center,
+                  alignment: Alignment.bottomCenter,
                   children: [
+                    // 底下的背景
                     Positioned(
                       bottom: 0,
                       left: 0,
                       right: 0,
                       child: Container(
                         height: 48,
-                        color: CPColors.lightGrey,
+                        color: backgroundColor,
                       ),
                     ),
+                    // 选中顶部弹出的圆弧背景
                     AnimatedPositioned(
                       duration: const Duration(milliseconds: 300),
                       curve: Curves.easeOutBack,
@@ -65,44 +75,48 @@ class CpBottomNavigationBar extends StatelessWidget {
                       child: Container(
                         width: 58,
                         height: 58,
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: CPColors.lightGrey,
+                          color: backgroundColor,
                         ),
                       ),
                     ),
-                    // 图标大小从32到48的动画
-                    SizedBox(
-                      height: 64,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          const SizedBox(height: 8), // 顶部间距
-                          AnimatedContainer(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeOutBack,
-                            width: isSelected ? 36 : 24,
-                            height: isSelected ? 36 : 24,
-                            decoration: BoxDecoration(
-                              color: isSelected ? Colors.blue : Colors.grey,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              isSelected ? item.activeIcon : item.icon,
-                              color: Colors.white,
-                              size: 18,
+                    // 图标和标签
+                    Column(
+                      children: [
+                        Expanded(
+                          child: Container(
+                              alignment: Alignment.bottomCenter,
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeOutBack,
+                                width: isSelected ? 36 : 24,
+                                height: isSelected ? 36 : 24,
+                                decoration: BoxDecoration(
+                                  color: isSelected ? selectedColor : unselectedColor,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  isSelected ? item.activeIcon : item.icon,
+                                  color: isSelected 
+                                      ? colorScheme.onPrimary 
+                                      : colorScheme.surface,
+                                  size: 16,
+                                ),
+                              )),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 4),
+                          child: Text(
+                            item.label,
+                            style: TextStyle(
+                              fontSize: 10, 
+                              color: labelColor,
                             ),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 2),
-                            child: Text(
-                              item.label,
-                              style: const TextStyle(fontSize: 10, color: CPColors.darkGrey),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),

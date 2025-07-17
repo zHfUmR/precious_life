@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:precious_life/core/utils/cp_storage.dart';
 
 /// 应用配置类

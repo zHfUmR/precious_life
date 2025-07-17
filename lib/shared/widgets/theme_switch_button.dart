@@ -89,8 +89,6 @@ class ThemeSwitchButton extends ConsumerWidget {
   IconData _getThemeIcon(AppThemeMode mode) => switch (mode) {
         AppThemeMode.light => Icons.light_mode, // 浅色模式
         AppThemeMode.dark => Icons.dark_mode, // 深色模式
-        AppThemeMode.remBlue => Icons.water_drop, // 蕾姆蓝用水滴图标
-        AppThemeMode.ramPink => Icons.favorite, // 拉姆粉用心形图标
       };
 
   /// 显示主题选择器
@@ -159,7 +157,5 @@ class ThemeSelector extends ConsumerWidget {
   IconData _getThemeIcon(AppThemeMode mode) => switch (mode) {
         AppThemeMode.light => Icons.light_mode, // 浅色模式
         AppThemeMode.dark => Icons.dark_mode, // 深色模式
-        AppThemeMode.remBlue => Icons.water_drop, // 蕾姆蓝用水滴图标
-        AppThemeMode.ramPink => Icons.favorite, // 拉姆粉用心形图标
       };
 }

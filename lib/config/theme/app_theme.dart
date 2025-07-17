@@ -2,39 +2,58 @@ import 'package:flutter/material.dart';
 import 'package:precious_life/config/theme/theme_provider.dart';
 
 /// 应用主题配置类
-/// 定义了蕾姆蓝和拉姆粉两套主题配置
+/// 定义了浅色和深色两套主题配置
 class AppTheme {
   AppTheme._();
 
-  /// 浅色主题色
-  static const Color _lightColor = Color(0xFF2196F3);
+  /// 浅色主题颜色配置
+  static const Map<String, Color> _lightThemeColors = {
+    'background': Color(0xFFFFFFFF), // 主背景（白）
+    'surface': Color(0xFFF5F5F5),   // 次级背景（浅灰）
+    'onBackground': Color(0xFF1C1B1F), // 背景上的文字（深灰黑）
+    'onSurface': Color(0xFF000000),  // 次级背景上的文字（纯黑）
+    'primary': Color(0xFF2196F3),    // 主色（蓝）
+    'primaryVariant': Color(0xFF1976D2), // 主色深变体
+    'secondary': Color(0xFF4CAF50),  // 辅助色（绿）
+    'error': Color(0xFFF44336),      // 错误色（红）
+  };
 
-  /// 深色主题色
-  static const Color _darkColor = Color(0xFF1976D2);
-
-  /// 蕾姆蓝主题色
-  static const Color _remBlueColor = Color(0xFF5A78EA);
-
-  /// 拉姆粉主题色
-  static const Color _ramPinkColor = Color(0xFFFF4081);
+  /// 深色主题颜色配置
+  static const Map<String, Color> _darkThemeColors = {
+    'background': Color(0xFF121212), // 主背景（深灰黑）
+    'surface': Color(0xFF1E1E1E),   // 次级背景（稍亮灰黑）
+    'onBackground': Color(0xFFFFFFFF), // 背景上的文字（白）
+    'onSurface': Color(0xFFFFFFFF),  // 次级背景上的文字（白）
+    'primary': Color(0xFF64B5F6),    // 主色（浅蓝，更柔和）
+    'primaryVariant': Color(0xFF1976D2), // 主色深变体（保持一致）
+    'secondary': Color(0xFF81C784),  // 辅助色（浅绿）
+    'error': Color(0xFFF06292),      // 错误色（浅粉）
+  };
 
   /// 根据主题模式获取对应的主题数据
   static ThemeData getTheme(AppThemeMode mode) {
-    final (seedColor, brightness) = switch (mode) {
-      AppThemeMode.light => (_lightColor, Brightness.light),
-      AppThemeMode.dark => (_darkColor, Brightness.dark),
-      AppThemeMode.remBlue => (_remBlueColor, Brightness.light),
-      AppThemeMode.ramPink => (_ramPinkColor, Brightness.light),
+    final (colors, brightness) = switch (mode) {
+      AppThemeMode.light => (_lightThemeColors, Brightness.light),
+      AppThemeMode.dark => (_darkThemeColors, Brightness.dark),
     };
+
+    final colorScheme = ColorScheme(
+      brightness: brightness,
+      primary: colors['primary']!,
+      onPrimary: brightness == Brightness.light ? Colors.white : Colors.black,
+      secondary: colors['secondary']!,
+      onSecondary: brightness == Brightness.light ? Colors.white : Colors.black,
+      error: colors['error']!,
+      onError: Colors.white,
+      surface: colors['surface']!,
+      onSurface: colors['onSurface']!,
+    );
 
     return ThemeData(
       useMaterial3: true,
-
-      // 使用种子颜色生成配色方案
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: seedColor,
-        brightness: brightness,
-      ),
+      
+      // 使用自定义配色方案
+      colorScheme: colorScheme,
 
       // 文本主题
       textTheme: _textTheme,
@@ -42,6 +61,7 @@ class AppTheme {
       // 卡片主题
       cardTheme: CardTheme(
         elevation: 4,
+        color: colors['surface'],
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -51,8 +71,8 @@ class AppTheme {
       appBarTheme: AppBarTheme(
         centerTitle: true,
         elevation: 0,
-        backgroundColor: seedColor,
-        foregroundColor: Colors.white,
+        backgroundColor: colors['primary'],
+        foregroundColor: brightness == Brightness.light ? Colors.white : Colors.black,
       ),
 
       // 按钮主题
@@ -68,14 +88,17 @@ class AppTheme {
 
       // 浮动操作按钮主题
       floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: seedColor,
-        foregroundColor: Colors.white,
+        backgroundColor: colors['primary'],
+        foregroundColor: brightness == Brightness.light ? Colors.white : Colors.black,
       ),
 
       // 进度指示器主题
       progressIndicatorTheme: ProgressIndicatorThemeData(
-        color: seedColor,
+        color: colors['primary'],
       ),
+
+      // 脚手架背景色
+      scaffoldBackgroundColor: colors['background'],
     );
   }
 
@@ -84,12 +107,6 @@ class AppTheme {
 
   /// 深色主题
   static ThemeData get darkTheme => getTheme(AppThemeMode.dark);
-
-  /// 蕾姆蓝主题
-  static ThemeData get remBlueTheme => getTheme(AppThemeMode.remBlue);
-
-  /// 拉姆粉主题
-  static ThemeData get ramPinkTheme => getTheme(AppThemeMode.ramPink);
 
   /// 统一的文本主题配置
   static const TextTheme _textTheme = TextTheme(

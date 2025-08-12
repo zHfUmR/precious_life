@@ -59,7 +59,7 @@ class AppTheme {
       textTheme: _textTheme,
 
       // 卡片主题
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 4,
         color: colors['surface'],
         shape: RoundedRectangleBorder(
